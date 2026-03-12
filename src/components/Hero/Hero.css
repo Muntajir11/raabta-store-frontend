@@ -1,0 +1,49 @@
+.hero {
+  padding: 4rem 0 6rem;
+  background-color: var(--color-white);
+  text-align: center;
+}
+
+.hero-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-title {
+  font-family: var(--font-heading);
+  font-size: clamp(4rem, 10vw, 8rem);
+  line-height: 0.9;
+  color: var(--color-black);
+  margin: 0;
+  display: inline-block;
+}
+
+.hero-word-normal {
+  font-style: normal;
+  display: block;
+  text-align: left;
+  margin-left: -5%;
+}
+
+.hero-word-italic {
+  font-style: italic;
+  font-weight: 400;
+  display: block;
+  text-align: right;
+  margin-right: -5%;
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 2rem 0 4rem;
+  }
+  .hero-word-normal {
+    margin-left: 0;
+    text-align: center;
+  }
+  .hero-word-italic {
+    margin-right: 0;
+    text-align: center;
+  }
+}
