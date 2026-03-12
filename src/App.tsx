@@ -14,9 +14,9 @@ function Home() {
 
   return (
     <>
-      <CategorySelector 
-        activeCategory={activeCategory} 
-        onSelect={setActiveCategory} 
+      <CategorySelector
+        activeCategory={activeCategory}
+        onSelect={setActiveCategory}
       />
       <ProductCards category={activeCategory} />
       <FAQ />
