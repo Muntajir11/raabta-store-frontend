@@ -9,31 +9,54 @@ interface CategorySelectorProps {
 }
 
 const CategorySelector: React.FC<CategorySelectorProps> = ({ activeCategory, onSelect }) => {
+  const studioSelected = activeCategory === 'normal';
+  const lifestyleSelected = activeCategory === 'islamic';
+
   return (
-    <section className="category-selector-section">
+    <section className="category-selector-section" aria-label="Choose product segment">
       <div className="container">
-        <div className="category-container">
-          
-          {/* Normal T-Shirts (Black Box -> Studio Image) */}
-          <div 
-            className={`category-box ${activeCategory === 'normal' ? 'active' : ''}`}
+        <div className="category-container" role="group" aria-label="Studio or Lifestyle">
+          <button
+            type="button"
+            className={`category-box ${studioSelected ? 'active' : ''}`}
+            aria-pressed={studioSelected}
+            aria-label={
+              studioSelected
+                ? 'Studio segment, currently viewing'
+                : 'Studio segment, select to view products'
+            }
             onClick={() => onSelect('normal')}
           >
+            {!studioSelected && (
+              <span className="category-segment-hint" aria-hidden="true">
+                Tap to select Studio segment
+              </span>
+            )}
             <div className="image-wrapper">
-              <img src={studioImg} alt="raabta. Studio - YOUR CONCEPT, OUR CRAFT." className="category-bg-img" />
+              <img src={studioImg} alt="" className="category-bg-img" />
             </div>
-          </div>
+          </button>
 
-          {/* Islamic T-Shirts (White Box -> Lifestyle Image) */}
-          <div 
-            className={`category-box ${activeCategory === 'islamic' ? 'active' : ''}`}
+          <button
+            type="button"
+            className={`category-box ${lifestyleSelected ? 'active' : ''}`}
+            aria-pressed={lifestyleSelected}
+            aria-label={
+              lifestyleSelected
+                ? 'Lifestyle segment, currently viewing'
+                : 'Lifestyle segment, select to view products'
+            }
             onClick={() => onSelect('islamic')}
           >
+            {!lifestyleSelected && (
+              <span className="category-segment-hint" aria-hidden="true">
+                Tap to select Lifestyle segment
+              </span>
+            )}
             <div className="image-wrapper">
-              <img src={lifestyleImg} alt="raabta. Lifestyle - FAITH MEETS LIFESTYLE" className="category-bg-img" />
+              <img src={lifestyleImg} alt="" className="category-bg-img" />
             </div>
-          </div>
-
+          </button>
         </div>
       </div>
     </section>
