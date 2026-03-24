@@ -1,5 +1,7 @@
 import React from 'react';
 import './CategorySelector.css';
+import studioImg from '../../assets/raabta/studio-segment.jpg';
+import lifestyleImg from '../../assets/raabta/lifestyle-segment.jpg';
 
 interface CategorySelectorProps {
   activeCategory: 'normal' | 'islamic';
@@ -12,25 +14,23 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ activeCategory, onS
       <div className="container">
         <div className="category-container">
           
-          {/* Normal T-Shirts (Black Box) */}
+          {/* Normal T-Shirts (Black Box -> Studio Image) */}
           <div 
-            className={`category-box black-box ${activeCategory === 'normal' ? 'active' : ''}`}
+            className={`category-box ${activeCategory === 'normal' ? 'active' : ''}`}
             onClick={() => onSelect('normal')}
           >
-            <div className="box-content">
-              <h2 className="box-logo">raabta.</h2>
-              <p className="box-subtext">YOUR CONCEPT, OUR CRAFT.</p>
+            <div className="image-wrapper">
+              <img src={studioImg} alt="raabta. Studio - YOUR CONCEPT, OUR CRAFT." className="category-bg-img" />
             </div>
           </div>
 
-          {/* Islamic T-Shirts (White Box) */}
+          {/* Islamic T-Shirts (White Box -> Lifestyle Image) */}
           <div 
-            className={`category-box white-box ${activeCategory === 'islamic' ? 'active' : ''}`}
+            className={`category-box ${activeCategory === 'islamic' ? 'active' : ''}`}
             onClick={() => onSelect('islamic')}
           >
-            <div className="box-content">
-              <h2 className="box-logo">raabta.</h2>
-              <p className="box-subtext">FAITH MEETS LIFESTYLE</p>
+            <div className="image-wrapper">
+              <img src={lifestyleImg} alt="raabta. Lifestyle - FAITH MEETS LIFESTYLE" className="category-bg-img" />
             </div>
           </div>
 

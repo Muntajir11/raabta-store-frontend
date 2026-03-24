@@ -3,7 +3,7 @@ import { ShoppingBag } from 'lucide-react';
 import './ProductCards.css';
 
 interface ProductCardsProps {
-  category: 'normal' | 'islamic';
+  category: string;
 }
 
 const DUMMY_PRODUCTS = [
@@ -32,18 +32,28 @@ const DUMMY_PRODUCTS = [
   { id: 22, name: 'Crescent Moon Tee', price: '$28', category: 'islamic', image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&q=80&w=600' },
 ];
 
+const getHeading = (category: string) => {
+  if (category === 'normal') return 'The Essentials';
+  if (category === 'islamic') return 'Faith Collection';
+  return category.charAt(0).toUpperCase() + category.slice(1) + ' Collection';
+};
+
 const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
-  const filteredProducts = DUMMY_PRODUCTS.filter(p => p.category === category);
+  // Use existing products for their respective categories, or render all 20 for placeholder categories
+  const isSpecialCategory = category === 'normal' || category === 'islamic';
+  const filteredProducts = isSpecialCategory 
+    ? DUMMY_PRODUCTS.filter(p => p.category === category)
+    : DUMMY_PRODUCTS;
 
   return (
     <section className="products-section">
       <div className="container">
         <h3 className="products-heading">
-          {category === 'normal' ? 'The Essentials' : 'Faith Collection'}
+          {getHeading(category)}
         </h3>
         <div className="products-grid">
-          {filteredProducts.map(product => (
-            <div key={product.id} className="product-card">
+          {filteredProducts.map((product, idx) => (
+            <div key={`${product.id}-${idx}`} className="product-card">
               <div className="product-image-wrapper">
                 <img src={product.image} alt={product.name} className="product-image" loading="lazy" />
                 <button className="add-to-cart-btn" aria-label="Add to cart">

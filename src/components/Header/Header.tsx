@@ -1,21 +1,35 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, Search } from 'lucide-react';
 import './Header.css';
+import logoImg from '../../assets/raabta/YOUR - 2.JPG.jpeg';
 
 const Header: React.FC = () => {
   return (
     <header className="header">
       <div className="container header-container">
-        
+
         <div className="logo-group">
-          <Link to="/" className="logo" style={{ textDecoration: 'none', color: 'inherit' }}>raabta.</Link>
+          <Link to="/" className="logo-link">
+            <img src={logoImg} alt="raabta." className="header-logo-img" />
+          </Link>
         </div>
 
-        <div className="header-tagline">
-          Design the future
+        <div className="header-segments">
+          <Link to="/category/anime" className="nav-link">Anime</Link> <span className="separator">|</span>
+          <Link to="/category/sports" className="nav-link">Sports</Link> <span className="separator">|</span>
+          <Link to="/category/streetwear" className="nav-link">Streetwear</Link> <span className="separator">|</span>
+          <Link to="/category/customisation" className="nav-link">Customisation</Link> <span className="separator">|</span>
+          <Link to="/category/islamic" className="nav-link">Islamic</Link>
         </div>
-        
+
+        <div className="header-search">
+          <div className="search-wrapper">
+            <Search size={18} className="search-icon" />
+            <input type="text" placeholder="Search by Keyword" className="search-input" />
+          </div>
+        </div>
+
         <div className="header-actions">
           <Link to="/login" className="nav-link">Log in</Link>
           <Link to="/signup" className="nav-link signup-btn">Sign up</Link>

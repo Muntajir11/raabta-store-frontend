@@ -6,18 +6,25 @@
 .category-container {
   display: flex;
   width: 100%;
-  border: 2px solid var(--color-black); /* Outer border around the whole thing as seen in image */
-  min-height: 300px;
+  border: 2px solid var(--color-black);
+  height: 320px;
 }
 
 .category-box {
   flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   cursor: pointer;
   transition: opacity 0.3s ease;
   position: relative;
+  overflow: hidden;
+}
+
+.category-box:first-child {
+  background-color: #000000;
+}
+
+.category-box:last-child {
+  border-left: 2px solid var(--color-black);
+  background-color: #ffffff;
 }
 
 .category-box:hover {
@@ -33,68 +40,21 @@
   pointer-events: none;
 }
 
-.box-content {
-  text-align: center;
+.image-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
 }
 
-.box-logo {
-  font-family: var(--font-logo);
-  font-size: 3.5rem;
-  font-weight: 500;
-  letter-spacing: -1.5px;
-  position: relative;
-  display: inline-block;
-  line-height: 1;
-  margin-bottom: 1.5rem;
-}
-
-.box-logo::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 10%;
-  width: 80%;
-  height: 4px;
-  background-color: var(--color-red);
-}
-
-.box-subtext {
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin: 0;
-}
-
-/* Specific styling for Black Box */
-.black-box {
-  background-color: var(--color-black);
-  color: var(--color-white);
-}
-
-/* Specific styling for White Box */
-.white-box {
-  background-color: var(--color-white);
-  color: var(--color-black);
-  border-left: 2px solid var(--color-black);
+.category-bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 @media (max-width: 768px) {
   .category-container {
     flex-direction: column;
-    min-height: auto;
-  }
-  .white-box {
-    border-left: none;
-    border-top: 2px solid var(--color-black);
-  }
-  .category-box {
-    padding: 3rem 1rem;
-  }
-  .box-logo {
-    font-size: 2.5rem;
-  }
-  .box-subtext {
-    font-size: 0.75rem;
   }
 }

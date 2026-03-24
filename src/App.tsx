@@ -8,6 +8,7 @@ import FAQ from './components/FAQ/FAQ';
 import Footer from './components/Footer/Footer';
 import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/Signup';
+import CategoryPage from './pages/Category/CategoryPage';
 
 function Home() {
   const [activeCategory, setActiveCategory] = useState<'normal' | 'islamic'>('normal');
@@ -31,6 +32,7 @@ function App() {
         <Header />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/category/:categoryId" element={<CategoryPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>
