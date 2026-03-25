@@ -9,6 +9,8 @@ import Footer from './components/Footer/Footer';
 import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/Signup';
 import CategoryPage from './pages/Category/CategoryPage';
+import ProductPage from './pages/Product/ProductPage';
+
 
 function Home() {
   const [activeCategory, setActiveCategory] = useState<'normal' | 'islamic'>('normal');
@@ -33,6 +35,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/category/:categoryId" element={<CategoryPage />} />
+          <Route path="/product/:productId" element={<ProductPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
         </Routes>
