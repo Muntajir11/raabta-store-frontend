@@ -33,6 +33,18 @@
   font-size: 0.95rem;
 }
 
+.auth-error {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  color: var(--color-red);
+  background: rgba(218, 37, 29, 0.08);
+  border: 1px solid rgba(218, 37, 29, 0.25);
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;
@@ -91,8 +103,13 @@
   cursor: pointer;
 }
 
-.auth-submit-btn:hover {
+.auth-submit-btn:hover:not(:disabled) {
   background-color: var(--color-red);
+}
+
+.auth-submit-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .auth-switch {

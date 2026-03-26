@@ -1,10 +1,31 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, Search } from 'lucide-react';
 import './Header.css';
 import logoImg from '../../assets/raabta/YOUR - 2.JPG.jpeg';
+import {
+  AUTH_EVENT_NAME,
+  clearAuthToken,
+  getAuthToken,
+} from '../../lib/api';
 
 const Header: React.FC = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(() => Boolean(getAuthToken()));
+
+  useEffect(() => {
+    const refreshAuthState = () => setIsLoggedIn(Boolean(getAuthToken()));
+    window.addEventListener('storage', refreshAuthState);
+    window.addEventListener(AUTH_EVENT_NAME, refreshAuthState);
+    return () => {
+      window.removeEventListener('storage', refreshAuthState);
+      window.removeEventListener(AUTH_EVENT_NAME, refreshAuthState);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    clearAuthToken();
+  };
+
   return (
     <header className="header">
       <div className="container header-container">
@@ -31,8 +52,20 @@ const Header: React.FC = () => {
         </div>
 
         <div className="header-actions">
-          <Link to="/login" className="nav-link">Log in</Link>
-          <Link to="/signup" className="nav-link signup-btn">Sign up</Link>
+          {isLoggedIn ? (
+            <button
+              type="button"
+              className="nav-link logout-btn"
+              onClick={handleLogout}
+            >
+              Log out
+            </button>
+          ) : (
+            <>
+              <Link to="/login" className="nav-link">Log in</Link>
+              <Link to="/signup" className="nav-link signup-btn">Sign up</Link>
+            </>
+          )}
           <button className="cart-btn" aria-label="Cart">
             <ShoppingBag size={20} />
             <span className="cart-count">0</span>
