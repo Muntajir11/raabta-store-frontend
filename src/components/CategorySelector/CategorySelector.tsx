@@ -27,6 +27,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ activeCategory, onS
             }
             onClick={() => onSelect('normal')}
           >
+            <span className="category-segment-title">Raabta Studio</span>
             {!studioSelected && (
               <span className="category-segment-hint" aria-hidden="true">
                 Tap to select Studio segment
@@ -48,6 +49,7 @@ const CategorySelector: React.FC<CategorySelectorProps> = ({ activeCategory, onS
             }
             onClick={() => onSelect('islamic')}
           >
+            <span className="category-segment-title">Raabta Lifestyle</span>
             {!lifestyleSelected && (
               <span className="category-segment-hint" aria-hidden="true">
                 Tap to select Lifestyle segment

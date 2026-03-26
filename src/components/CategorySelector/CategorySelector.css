@@ -59,6 +59,41 @@
   filter: blur(3px);
 }
 
+.category-segment-title {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.75rem;
+  z-index: 3;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.28rem 0.55rem;
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+.category-box:first-child .category-segment-title {
+  color: var(--color-white);
+  background: rgba(0, 0, 0, 0.48);
+}
+
+.category-box:last-child .category-segment-title {
+  color: var(--color-black);
+  background: rgba(255, 255, 255, 0.78);
+  outline: 1px solid rgba(218, 37, 29, 0.32);
+}
+
+.category-box:not(.active) .category-segment-title {
+  filter: blur(1.2px);
+  opacity: 0.85;
+}
+
+.category-box.active .category-segment-title {
+  filter: none;
+  opacity: 1;
+}
+
 /* Tap hint on inactive segment only */
 .category-segment-hint {
   position: absolute;
@@ -158,5 +193,12 @@
     font-size: 0.68rem;
     padding: 0.45rem 0.7rem;
     max-width: 86%;
+  }
+
+  .category-segment-title {
+    left: 0.55rem;
+    top: 0.5rem;
+    font-size: 0.72rem;
+    padding: 0.22rem 0.45rem;
   }
 }
