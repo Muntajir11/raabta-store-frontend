@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   ApiRequestError,
   authRegister,
-  setAuthToken,
+  notifyAuthChanged,
 } from '../../lib/api';
 import './Auth.css';
 
@@ -25,8 +25,8 @@ const Signup: React.FC = () => {
     }
     setLoading(true);
     try {
-      const data = await authRegister({ name, email, password });
-      setAuthToken(data.token);
+      await authRegister({ name, email, password });
+      notifyAuthChanged();
       navigate('/');
     } catch (err) {
       const message =

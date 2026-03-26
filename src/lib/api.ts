@@ -1,4 +1,3 @@
-export const AUTH_TOKEN_KEY = 'raabta_token';
 export const AUTH_EVENT_NAME = 'raabta-auth-changed';
 
 export type AuthUser = {
@@ -9,7 +8,6 @@ export type AuthUser = {
 
 export type AuthPayload = {
   user: AuthUser;
-  token: string;
 };
 
 export class ApiRequestError extends Error {
@@ -68,6 +66,7 @@ async function postAuthJson<T extends AuthPayload>(
   const res = await fetch(`${base}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(body),
   });
 
@@ -91,20 +90,17 @@ async function postAuthJson<T extends AuthPayload>(
   }
 
   const user = data.user;
-  const token = data.token;
   if (
     !isRecord(user) ||
     typeof user.id !== 'string' ||
     typeof user.name !== 'string' ||
-    typeof user.email !== 'string' ||
-    typeof token !== 'string'
+    typeof user.email !== 'string'
   ) {
     throw new ApiRequestError('Invalid response', res.status);
   }
 
   return {
     user: { id: user.id, name: user.name, email: user.email },
-    token,
   } as T;
 }
 
@@ -130,16 +126,63 @@ export async function authRegister(input: {
   });
 }
 
-export function setAuthToken(token: string): void {
-  localStorage.setItem(AUTH_TOKEN_KEY, token);
+export async function authLogout(): Promise<void> {
+  const base = getApiBaseUrl();
+  const res = await fetch(`${base}/api/auth/logout`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const parsed = await parseJson(res);
+    const message = readErrorMessage(parsed, 'Request failed');
+    const code = readErrorCode(parsed);
+    throw new ApiRequestError(message, res.status, code);
+  }
   window.dispatchEvent(new CustomEvent(AUTH_EVENT_NAME));
 }
 
-export function getAuthToken(): string | null {
-  return localStorage.getItem(AUTH_TOKEN_KEY);
+export async function authSession(): Promise<AuthUser | null> {
+  const base = getApiBaseUrl();
+  const fetchSessionUser = async (): Promise<AuthUser | null> => {
+    const res = await fetch(`${base}/api/auth/session`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+    if (res.status === 401) return null;
+    const parsed = await parseJson(res);
+    if (!res.ok) {
+      const message = readErrorMessage(parsed, 'Request failed');
+      const code = readErrorCode(parsed);
+      throw new ApiRequestError(message, res.status, code);
+    }
+
+    if (!isRecord(parsed) || parsed.success !== true || !isRecord(parsed.data)) {
+      throw new ApiRequestError('Invalid response', res.status);
+    }
+    const user = parsed.data.user;
+    if (
+      !isRecord(user) ||
+      typeof user.id !== 'string' ||
+      typeof user.name !== 'string' ||
+      typeof user.email !== 'string'
+    ) {
+      throw new ApiRequestError('Invalid response', res.status);
+    }
+    return { id: user.id, name: user.name, email: user.email };
+  };
+
+  const current = await fetchSessionUser();
+  if (current) return current;
+
+  const refreshRes = await fetch(`${base}/api/auth/refresh`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+  if (!refreshRes.ok) return null;
+
+  return fetchSessionUser();
 }
 
-export function clearAuthToken(): void {
-  localStorage.removeItem(AUTH_TOKEN_KEY);
+export function notifyAuthChanged(): void {
   window.dispatchEvent(new CustomEvent(AUTH_EVENT_NAME));
 }

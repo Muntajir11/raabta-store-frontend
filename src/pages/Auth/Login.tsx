@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   ApiRequestError,
   authLogin,
-  setAuthToken,
+  notifyAuthChanged,
 } from '../../lib/api';
 import './Auth.css';
 
@@ -23,8 +23,8 @@ const Login: React.FC = () => {
     setError(null);
     setLoading(true);
     try {
-      const data = await authLogin({ email, password });
-      setAuthToken(data.token);
+      await authLogin({ email, password });
+      notifyAuthChanged();
       navigate('/');
     } catch (err) {
       const message =

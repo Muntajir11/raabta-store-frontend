@@ -103,13 +103,29 @@
 
 @media (max-width: 768px) {
   .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1rem;
   }
+
+  .product-name {
+    font-size: 0.95rem;
+    overflow-wrap: anywhere;
+  }
+
+  .product-info {
+    gap: 0.5rem;
+  }
+
   .add-to-cart-btn {
     opacity: 1; /* Make visible on mobile since no hover */
     transform: none;
     width: 35px;
     height: 35px;
+  }
+}
+
+@media (max-width: 420px) {
+  .products-grid {
+    grid-template-columns: 1fr;
   }
 }
