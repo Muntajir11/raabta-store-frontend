@@ -3,6 +3,7 @@ import { Heart, ShoppingBag, Star } from 'lucide-react';
 import './ProductCards.css';
 import { useCart } from '../../lib/cart-context';
 import { productsList, type ProductItem } from '../../lib/api';
+import { FALLBACK_PRODUCT_IMAGE_URL, FALLBACK_PRODUCTS } from '../../data/products';
 
 interface ProductCardsProps {
   category: string;
@@ -27,7 +28,8 @@ const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
         const items = await productsList();
         setProducts(items);
       } catch {
-        setProducts([]);
+        // Keep storefront usable on frontend-only deploys.
+        setProducts(FALLBACK_PRODUCTS);
       } finally {
         setLoadingProducts(false);
       }
@@ -75,7 +77,16 @@ const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
           {visibleProducts.map((product, idx) => (
             <div key={`${product.id}-${idx}`} className="product-card">
               <div className="product-image-wrapper">
-                <img src={product.image} alt={product.name} className="product-image" loading="lazy" />
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="product-image"
+                  loading="lazy"
+                  onError={(ev) => {
+                    ev.currentTarget.onerror = null;
+                    ev.currentTarget.src = FALLBACK_PRODUCT_IMAGE_URL;
+                  }}
+                />
                 <div className="product-rating-badge">
                   <Star size={13} fill="currentColor" />
                   <span>4.8</span>
