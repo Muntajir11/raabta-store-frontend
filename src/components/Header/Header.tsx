@@ -8,11 +8,13 @@ import {
   authLogout,
   authSession,
 } from '../../lib/api';
+import { useCart } from '../../lib/cart-context';
 
 const Header: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
+  const { totalItems } = useCart();
   const categories = [
     { id: '', label: 'Home' },
     { id: 'anime', label: 'Anime' },
@@ -99,10 +101,10 @@ const Header: React.FC = () => {
           </div>
 
           <div className="header-actions">
-            <button className="cart-btn" aria-label="Cart">
+            <Link to="/cart" className="cart-btn" aria-label="Cart">
               <ShoppingBag size={20} />
-              <span className="cart-count">0</span>
-            </button>
+              <span className="cart-count">{totalItems}</span>
+            </Link>
 
             {!isLoggedIn ? (
               <div className="auth-actions">

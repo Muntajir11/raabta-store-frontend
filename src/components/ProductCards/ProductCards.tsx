@@ -1,36 +1,12 @@
-import React from 'react';
-import { ShoppingBag } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Heart, ShoppingBag, Star } from 'lucide-react';
 import './ProductCards.css';
+import { useCart } from '../../lib/cart-context';
+import { productsList, type ProductItem } from '../../lib/api';
 
 interface ProductCardsProps {
   category: string;
 }
-
-const DUMMY_PRODUCTS = [
-  // Normal
-  { id: 1, name: 'Essential Black Tee', price: '$25', category: 'normal', image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=600' },
-  { id: 2, name: 'Minimalist Logo Tee', price: '$30', category: 'normal', image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&q=80&w=600' },
-  { id: 3, name: 'Classic Red Accent', price: '$28', category: 'normal', image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&q=80&w=600' },
-  { id: 4, name: 'Oversized Blank', price: '$35', category: 'normal', image: 'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?auto=format&fit=crop&q=80&w=600' },
-  { id: 11, name: 'White Signature', price: '$28', category: 'normal', image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=600' },
-  { id: 12, name: 'Monochrome Pack', price: '$65', category: 'normal', image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&q=80&w=600' },
-  { id: 13, name: 'Red Box Logo', price: '$32', category: 'normal', image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&q=80&w=600' },
-  { id: 14, name: 'Vintage Wash Black', price: '$38', category: 'normal', image: 'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?auto=format&fit=crop&q=80&w=600' },
-  { id: 15, name: 'Everyday Crewneck', price: '$45', category: 'normal', image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&q=80&w=600' },
-  { id: 16, name: 'Performance Tee', price: '$40', category: 'normal', image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&q=80&w=600' },
-
-  // Islamic
-  { id: 5, name: 'Sabr Print Tee', price: '$30', category: 'islamic', image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&q=80&w=600' },
-  { id: 6, name: 'Tawakkul Essential', price: '$32', category: 'islamic', image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&q=80&w=600' },
-  { id: 7, name: 'Geometric Pattern Tee', price: '$35', category: 'islamic', image: 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&q=80&w=600' },
-  { id: 8, name: 'Arabic Calligraphy', price: '$38', category: 'islamic', image: 'https://images.unsplash.com/photo-1527719327859-c6ce80353573?auto=format&fit=crop&q=80&w=600' },
-  { id: 17, name: 'Alhamdulillah Tee', price: '$30', category: 'islamic', image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&q=80&w=600' },
-  { id: 18, name: 'Bismillah Minimal', price: '$28', category: 'islamic', image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&q=80&w=600' },
-  { id: 19, name: 'Palestine Edition', price: '$40', category: 'islamic', image: 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&q=80&w=600' },
-  { id: 20, name: 'Kufic Art Print', price: '$35', category: 'islamic', image: 'https://images.unsplash.com/photo-1527719327859-c6ce80353573?auto=format&fit=crop&q=80&w=600' },
-  { id: 21, name: 'Dua Everyday', price: '$32', category: 'islamic', image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&q=80&w=600' },
-  { id: 22, name: 'Crescent Moon Tee', price: '$28', category: 'islamic', image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&q=80&w=600' },
-];
 
 const getHeading = (category: string) => {
   if (category === 'normal') return 'The Essentials';
@@ -39,11 +15,53 @@ const getHeading = (category: string) => {
 };
 
 const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
-  // Use existing products for their respective categories, or render all 20 for placeholder categories
-  const isSpecialCategory = category === 'normal' || category === 'islamic';
-  const filteredProducts = isSpecialCategory 
-    ? DUMMY_PRODUCTS.filter(p => p.category === category)
-    : DUMMY_PRODUCTS;
+  const { addItem } = useCart();
+  const [products, setProducts] = useState<ProductItem[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoadingProducts(true);
+      try {
+        const items = await productsList();
+        setProducts(items);
+      } catch {
+        setProducts([]);
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+    void loadProducts();
+  }, []);
+
+  // Product cards are sourced from backend DB and shown in all segments.
+  const visibleProducts = useMemo(() => products, [products]);
+
+  const handleAddToCart = async (product: ProductItem) => {
+    const defaultSize = product.sizes[0] || 'M';
+    const defaultColor = product.colors[0] || 'Black';
+    const defaultGsmOption = product.gsmOptions[0] || { gsm: 180, price: product.price };
+
+    try {
+      await addItem({
+        productId: product.id,
+        name: product.name,
+        price: defaultGsmOption.price,
+        image: product.image,
+        category: product.category,
+        size: defaultSize,
+        color: defaultColor,
+        gsm: defaultGsmOption.gsm,
+        qty: 1,
+      });
+      setFeedback(`${product.name} added to cart`);
+      window.setTimeout(() => setFeedback(null), 1600);
+    } catch {
+      setFeedback('Unable to add item right now');
+      window.setTimeout(() => setFeedback(null), 1800);
+    }
+  };
 
   return (
     <section className="products-section">
@@ -51,18 +69,40 @@ const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
         <h3 className="products-heading">
           {getHeading(category)}
         </h3>
+        {feedback ? <p className="products-feedback">{feedback}</p> : null}
+        {loadingProducts ? <p className="products-feedback">Loading products…</p> : null}
         <div className="products-grid">
-          {filteredProducts.map((product, idx) => (
+          {visibleProducts.map((product, idx) => (
             <div key={`${product.id}-${idx}`} className="product-card">
               <div className="product-image-wrapper">
                 <img src={product.image} alt={product.name} className="product-image" loading="lazy" />
-                <button className="add-to-cart-btn" aria-label="Add to cart">
+                <div className="product-rating-badge">
+                  <Star size={13} fill="currentColor" />
+                  <span>4.8</span>
+                </div>
+                <button
+                  className="add-to-cart-btn"
+                  aria-label={`Add ${product.name} to cart`}
+                  onClick={() => void handleAddToCart(product)}
+                >
                   <ShoppingBag size={20} />
                 </button>
               </div>
               <div className="product-info">
+                <div className="product-meta-row">
+                  <p className="product-brand">Raabta&reg;</p>
+                  <button
+                    className="wishlist-btn"
+                    aria-label={`Add ${product.name} to wishlist`}
+                    type="button"
+                  >
+                    <Heart size={18} />
+                  </button>
+                </div>
                 <h4 className="product-name">{product.name}</h4>
-                <p className="product-price">{product.price}</p>
+                <div className="product-price-row">
+                  <p className="product-price">Rs. {Math.round(product.price * 83)}</p>
+                </div>
               </div>
             </div>
           ))}
