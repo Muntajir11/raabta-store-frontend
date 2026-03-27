@@ -13,7 +13,7 @@ const FAQ_DATA = [
   },
   {
     question: "What is your return policy?",
-    answer: "We offer a 14-day return policy for unworn items in their original packaging. Please contact our support team to initiate a return."
+    answer: "We offer a 14-day return policy for unworn items in their original packaging. An unboxing video proof is required to initiate a refund. Please contact our support team to start the return process."
   },
   {
     question: "How do I care for my printed t-shirts?",
