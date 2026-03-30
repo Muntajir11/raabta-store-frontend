@@ -277,14 +277,35 @@
   margin-top: 1rem;
 }
 
-.offer-tag {
-  background-color: #f7f7f7;
-  border: 1px dashed #ddd;
-  padding: 0.75rem;
-  border-radius: 4px;
-  font-size: 0.85rem;
-  font-weight: 600;
+.product-offers h4 {
+  font-size: 0.95rem;
   color: #333;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.coupon-input {
+  display: flex;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.coupon-input input {
+  flex: 1;
+  border: none;
+  padding: 0.75rem 1rem;
+  outline: none;
+  font-size: 1rem;
+}
+
+.coupon-input button {
+  background: none;
+  border: none;
+  color: var(--color-red);
+  font-weight: 700;
+  padding: 0 1rem;
+  cursor: pointer;
 }
 
 .delivery-check {
@@ -340,7 +361,6 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 0;
-  cursor: pointer;
 }
 
 .accordion-header h4 {
