@@ -1,3 +1,7 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { ShoppingBag } from 'lucide-react';
+import { DUMMY_PRODUCTS } from '../../data/products';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Heart, ShoppingBag, Star } from 'lucide-react';
 import './ProductCards.css';
@@ -8,6 +12,7 @@ import { FALLBACK_PRODUCT_IMAGE_URL, FALLBACK_PRODUCTS } from '../../data/produc
 interface ProductCardsProps {
   category: string;
 }
+
 
 const getHeading = (category: string) => {
   if (category === 'normal') return 'The Essentials';
@@ -74,6 +79,17 @@ const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
         {feedback ? <p className="products-feedback">{feedback}</p> : null}
         {loadingProducts ? <p className="products-feedback">Loading products…</p> : null}
         <div className="products-grid">
+          {filteredProducts.map((product, idx) => (
+            <Link to={`/product/${product.id}`} key={`${product.id}-${idx}`} className="product-card" style={{ textDecoration: 'none', color: 'inherit' }}>
+              <div className="product-image-wrapper">
+                <img src={product.image} alt={product.name} className="product-image" loading="lazy" />
+                <button 
+                  className="add-to-cart-btn" 
+                  aria-label="Add to cart"
+                  onClick={(e) => {
+                    e.preventDefault(); // Prevent navigating if they just click add to cart directly from the list
+                    // Add to cart logic ...
+                  }}
           {visibleProducts.map((product, idx) => (
             <div key={`${product.id}-${idx}`} className="product-card">
               <div className="product-image-wrapper">
@@ -115,7 +131,7 @@ const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
                   <p className="product-price">Rs. {Math.round(product.price * 83)}</p>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

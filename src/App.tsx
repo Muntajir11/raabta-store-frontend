@@ -10,6 +10,8 @@ import Footer from './components/Footer/Footer';
 import Login from './pages/Auth/Login';
 import Signup from './pages/Auth/Signup';
 import CategoryPage from './pages/Category/CategoryPage';
+import ProductPage from './pages/Product/ProductPage';
+
 import CartPage from './pages/Cart/CartPage';
 import CustomiseEditorPage from './pages/Customisation/CustomiseEditorPage';
 
@@ -37,6 +39,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/category/:categoryId" element={<CategoryPage />} />
+          <Route path="/product/:productId" element={<ProductPage />} />
           <Route path="/customisation/design" element={<CustomiseEditorPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/login" element={<Login />} />
