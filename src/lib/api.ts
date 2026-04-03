@@ -79,12 +79,15 @@ export class ApiRequestError extends Error {
   }
 }
 
+/**
+ * API origin for fetch calls. When `VITE_API_URL` is unset (e.g. Vercel static
+ * without env), uses "" so paths like `/api/products` hit the current origin.
+ * Set `VITE_API_URL` in production when the API is on another host.
+ */
 export function getApiBaseUrl(): string {
   const raw = import.meta.env.VITE_API_URL;
   if (!raw || typeof raw !== 'string' || !raw.trim()) {
-    throw new Error(
-      'VITE_API_URL is not set. Copy .env.example to .env and set VITE_API_URL (e.g. http://localhost:5000).'
-    );
+    return '';
   }
   return raw.replace(/\/$/, '');
 }
