@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { CircleUserRound, ShoppingBag, Search } from 'lucide-react';
 import './Header.css';
 import logoImg from '../../assets/raabta/YOUR - 2.JPG.jpeg';
@@ -11,6 +11,7 @@ import {
 import { useCart } from '../../lib/cart-context';
 
 const Header: React.FC = () => {
+  const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
@@ -79,9 +80,15 @@ const Header: React.FC = () => {
               <NavLink
                 to={category.id ? `/category/${category.id}` : '/'}
                 end={!category.id}
-                className={({ isActive }) =>
-                  `nav-link segment-link${isActive ? ' active' : ''}`
-                }
+                className={({ isActive }) => {
+                  const customisationActive =
+                    category.id === 'customisation' &&
+                    (location.pathname.startsWith('/customisation/') ||
+                      location.pathname === '/category/customisation');
+                  const active =
+                    category.id === 'customisation' ? customisationActive : isActive;
+                  return `nav-link segment-link${active ? ' active' : ''}`;
+                }}
               >
                 {category.label}
               </NavLink>

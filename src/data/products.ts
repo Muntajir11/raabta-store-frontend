@@ -8,7 +8,7 @@ export const FALLBACK_PRODUCT_IMAGE_URL =
 export const FALLBACK_PRODUCTS: ProductItem[] = [
   {
     id: 'RBT-001',
-    name: 'Raabta Signature Minimal Tee',
+    name: 'Raabta Signature Minimal T-shirt',
     price: 8.99,
     image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1000&q=80',
     category: 'streetwear',
@@ -22,7 +22,7 @@ export const FALLBACK_PRODUCTS: ProductItem[] = [
   },
   {
     id: 'RBT-002',
-    name: 'Raabta Anime Panel Graphic Tee',
+    name: 'Raabta Anime Panel Graphic T-shirt',
     price: 9.49,
     image: 'https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?auto=format&fit=crop&w=1000&q=80',
     category: 'anime',
@@ -36,7 +36,7 @@ export const FALLBACK_PRODUCTS: ProductItem[] = [
   },
   {
     id: 'RBT-003',
-    name: 'Raabta Oversized Sports Club Tee',
+    name: 'Raabta Oversized Sports Club T-shirt',
     price: 9.99,
     image: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1000&q=80',
     category: 'sports',
@@ -50,7 +50,7 @@ export const FALLBACK_PRODUCTS: ProductItem[] = [
   },
   {
     id: 'RBT-004',
-    name: 'Raabta Calligraphy Core Tee',
+    name: 'Raabta Calligraphy Core T-shirt',
     price: 8.79,
     image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?auto=format&fit=crop&w=1000&q=80',
     category: 'islamic',
@@ -64,7 +64,7 @@ export const FALLBACK_PRODUCTS: ProductItem[] = [
   },
   {
     id: 'RBT-005',
-    name: 'Raabta Lifestyle Everyday Fit Tee',
+    name: 'Raabta Lifestyle Everyday Fit T-shirt',
     price: 8.69,
     image: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=1000&q=80',
     category: 'customisation',
@@ -78,7 +78,7 @@ export const FALLBACK_PRODUCTS: ProductItem[] = [
   },
   {
     id: 'RBT-006',
-    name: 'Raabta Tokyo Drift Graphic Tee',
+    name: 'Raabta Tokyo Drift Graphic T-shirt',
     price: 9.29,
     image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=1000&q=80',
     category: 'anime',
@@ -92,7 +92,7 @@ export const FALLBACK_PRODUCTS: ProductItem[] = [
   },
   {
     id: 'RBT-007',
-    name: 'Raabta Monochrome Typography Tee',
+    name: 'Raabta Monochrome Typography T-shirt',
     price: 8.59,
     image: 'https://images.unsplash.com/photo-1593032465171-8f3d8f4e1b76?auto=format&fit=crop&w=1000&q=80',
     category: 'streetwear',
@@ -106,7 +106,7 @@ export const FALLBACK_PRODUCTS: ProductItem[] = [
   },
   {
     id: 'RBT-008',
-    name: 'Raabta Matchday Premium Tee',
+    name: 'Raabta Matchday Premium T-shirt',
     price: 10.29,
     image: 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=1000&q=80',
     category: 'sports',
@@ -120,7 +120,7 @@ export const FALLBACK_PRODUCTS: ProductItem[] = [
   },
   {
     id: 'RBT-009',
-    name: 'Raabta Eid Edition Script Tee',
+    name: 'Raabta Eid Edition Script T-shirt',
     price: 9.19,
     image: 'https://images.unsplash.com/photo-1527719327859-c6ce80353573?auto=format&fit=crop&w=1000&q=80',
     category: 'islamic',
@@ -134,7 +134,7 @@ export const FALLBACK_PRODUCTS: ProductItem[] = [
   },
   {
     id: 'RBT-010',
-    name: 'Raabta Create-Your-Print Base Tee',
+    name: 'Raabta Create-Your-Print Base T-shirt',
     price: 8.89,
     image: 'https://images.unsplash.com/photo-1562157873-818bc0726f68?auto=format&fit=crop&w=1000&q=80',
     category: 'customisation',
