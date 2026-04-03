@@ -1,8 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { ShoppingBag } from 'lucide-react';
-import { DUMMY_PRODUCTS } from '../../data/products';
 import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Heart, ShoppingBag, Star } from 'lucide-react';
 import './ProductCards.css';
 import { useCart } from '../../lib/cart-context';
@@ -12,7 +9,6 @@ import { FALLBACK_PRODUCT_IMAGE_URL, FALLBACK_PRODUCTS } from '../../data/produc
 interface ProductCardsProps {
   category: string;
 }
-
 
 const getHeading = (category: string) => {
   if (category === 'normal') return 'The Essentials';
@@ -33,7 +29,6 @@ const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
         const items = await productsList();
         setProducts(items);
       } catch {
-        // Keep storefront usable on frontend-only deploys.
         setProducts(FALLBACK_PRODUCTS);
       } finally {
         setLoadingProducts(false);
@@ -42,7 +37,6 @@ const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
     void loadProducts();
   }, []);
 
-  // Product cards are sourced from backend DB and shown in all segments.
   const visibleProducts = useMemo(() => products, [products]);
 
   const handleAddToCart = async (product: ProductItem) => {
@@ -73,25 +67,17 @@ const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
   return (
     <section className="products-section">
       <div className="container">
-        <h3 className="products-heading">
-          {getHeading(category)}
-        </h3>
+        <h3 className="products-heading">{getHeading(category)}</h3>
         {feedback ? <p className="products-feedback">{feedback}</p> : null}
         {loadingProducts ? <p className="products-feedback">Loading products…</p> : null}
         <div className="products-grid">
-          {filteredProducts.map((product, idx) => (
-            <Link to={`/product/${product.id}`} key={`${product.id}-${idx}`} className="product-card" style={{ textDecoration: 'none', color: 'inherit' }}>
-              <div className="product-image-wrapper">
-                <img src={product.image} alt={product.name} className="product-image" loading="lazy" />
-                <button 
-                  className="add-to-cart-btn" 
-                  aria-label="Add to cart"
-                  onClick={(e) => {
-                    e.preventDefault(); // Prevent navigating if they just click add to cart directly from the list
-                    // Add to cart logic ...
-                  }}
           {visibleProducts.map((product, idx) => (
-            <div key={`${product.id}-${idx}`} className="product-card">
+            <Link
+              key={`${product.id}-${idx}`}
+              to={`/product/${product.id}`}
+              className="product-card"
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
               <div className="product-image-wrapper">
                 <img
                   src={product.image}
@@ -108,9 +94,14 @@ const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
                   <span>4.8</span>
                 </div>
                 <button
+                  type="button"
                   className="add-to-cart-btn"
                   aria-label={`Add ${product.name} to cart`}
-                  onClick={() => void handleAddToCart(product)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    void handleAddToCart(product);
+                  }}
                 >
                   <ShoppingBag size={20} />
                 </button>
@@ -122,6 +113,7 @@ const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
                     className="wishlist-btn"
                     aria-label={`Add ${product.name} to wishlist`}
                     type="button"
+                    onClick={(e) => e.preventDefault()}
                   >
                     <Heart size={18} />
                   </button>
