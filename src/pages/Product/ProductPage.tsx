@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingBag, Heart, Ruler } from 'lucide-react';
 import { DUMMY_PRODUCTS } from '../../data/products';
 import ProductReviews from '../../components/ProductReviews/ProductReviews';
+import SizeGuideModal from '../../components/SizeGuideModal/SizeGuideModal';
 import './ProductPage.css';
 const ProductPage: React.FC = () => {
 
@@ -10,6 +11,7 @@ const ProductPage: React.FC = () => {
   const productId = parseInt(useParams<{ productId: string }>().productId || '0', 10);
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedImageIdx, setSelectedImageIdx] = useState<number>(0);
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState<boolean>(false);
 
   const product = DUMMY_PRODUCTS.find(p => p.id === productId);
 
@@ -82,7 +84,10 @@ const ProductPage: React.FC = () => {
           <div className="size-selection">
             <div className="size-header">
               <h4>SELECT SIZE</h4>
-              <button className="size-guide">
+              <button 
+                className="size-guide"
+                onClick={() => setIsSizeGuideOpen(true)}
+              >
                 <Ruler size={16} /> Size Guide
               </button>
             </div>
@@ -145,6 +150,12 @@ const ProductPage: React.FC = () => {
 
       {/* Review Section */}
       <ProductReviews productId={product.id} rating={product.rating} reviewsCount={product.reviewsCount} />
+
+      {/* Size Guide Modal */}
+      <SizeGuideModal 
+        isOpen={isSizeGuideOpen} 
+        onClose={() => setIsSizeGuideOpen(false)} 
+      />
     </div>
   );
 };
