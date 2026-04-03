@@ -94,10 +94,43 @@
 }
 
 @media (max-width: 768px) {
+  .footer {
+    padding-top: 2.25rem;
+  }
+
   .footer-container {
     flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
   }
+
+  /* In column layout, basis applies to height — 300px was creating a huge gap under the tagline. */
+  .footer-brand {
+    flex: 0 0 auto;
+    max-width: none;
+  }
+
+  .footer-logo {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
   .footer-links {
     flex-direction: column;
+    flex: 0 0 auto;
+    gap: 1.25rem;
+    justify-content: flex-start;
+  }
+
+  .footer-col-heading {
+    margin-bottom: 0.65rem;
+  }
+
+  .footer-col ul {
+    gap: 0.55rem;
+  }
+
+  .footer-bottom {
+    padding: 1rem 0;
   }
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, type MutableRefObject } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import { Image as KImage, Layer, Rect, Stage, Text as KText, Transformer } from 'react-konva';
 import type Konva from 'konva';
 import { EDITOR_STAGE, GARMENT_FRAME, clampLayerToBounds, fitLayerToBounds } from './constraints';
@@ -94,8 +94,33 @@ export function EditorCanvas({
   templates,
   rightMirror,
 }: EditorCanvasProps) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  /** Scale design coords to fit container width (mobile); design space stays 620×700. */
+  const [stageScale, setStageScale] = useState(1);
+
   const transformerRef = useRef<Konva.Transformer>(null);
   const nodeRefs = useRef<Record<string, Konva.Node | null>>({});
+
+  useLayoutEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+
+    const measure = () => {
+      const w = el.clientWidth;
+      if (w < 16) return;
+      const s = Math.min(Math.max(w / EDITOR_STAGE.width, 0.24), 2);
+      setStageScale(s);
+    };
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    window.addEventListener('orientationchange', measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('orientationchange', measure);
+    };
+  }, []);
 
   const transformerBounds = useMemo(() => {
     const sel = layers.find((l) => l.id === selectedLayerId);
@@ -113,12 +138,17 @@ export function EditorCanvas({
 
   const stageBg = '#ffffff';
   const template = templates[activeView];
+  const stageW = EDITOR_STAGE.width * stageScale;
+  const stageH = EDITOR_STAGE.height * stageScale;
+  const touchAnchors = stageScale < 0.72;
 
   return (
-    <div className="editor-canvas-wrap">
+    <div ref={wrapRef} className="editor-canvas-wrap">
       <Stage
-        width={EDITOR_STAGE.width}
-        height={EDITOR_STAGE.height}
+        width={stageW}
+        height={stageH}
+        scaleX={stageScale}
+        scaleY={stageScale}
         className="editor-stage"
         onMouseDown={(e) => {
           if (e.target === e.target.getStage()) onSelectLayer(null);
@@ -216,6 +246,10 @@ export function EditorCanvas({
             ref={transformerRef}
             rotateEnabled
             enabledAnchors={['top-left', 'top-right', 'bottom-left', 'bottom-right']}
+            anchorSize={touchAnchors ? 16 : 11}
+            anchorCornerRadius={touchAnchors ? 3 : 2}
+            rotateAnchorOffset={touchAnchors ? 36 : 50}
+            borderStrokeWidth={touchAnchors ? 2.25 : 1.5}
             boundBoxFunc={(_oldBox, newBox) => {
               const fitted = fitLayerToBounds(
                 newBox.x,
