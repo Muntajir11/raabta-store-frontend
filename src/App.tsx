@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import './App.css';
 import Header from './components/Header/Header';
@@ -32,7 +32,7 @@ function Home() {
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Toaster position="top-center" />
       <div className="app">
         <Header />
@@ -47,7 +47,7 @@ function App() {
         </Routes>
         <Footer />
       </div>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
