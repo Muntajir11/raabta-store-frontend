@@ -1,4 +1,14 @@
-# React + TypeScript + Vite
+# Raabta Store — frontend
+
+React + TypeScript + Vite.
+
+## API (local)
+
+1. Copy `cp .env.example .env` (default: `VITE_API_URL=http://localhost:5000`).
+2. Run the [backend](../backend) on that host/port.
+3. Backend must allow this app’s origin in `CORS_ORIGIN` (e.g. `http://localhost:5173` for Vite dev).
+
+---
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
