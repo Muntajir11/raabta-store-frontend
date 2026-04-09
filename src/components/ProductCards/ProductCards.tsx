@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingBag, Star } from 'lucide-react';
 import './ProductCards.css';
 import { useCart } from '../../lib/cart-context';
-import { productsList, type ProductItem } from '../../lib/api';
+import type { ProductItem } from '../../lib/api';
 import { FALLBACK_PRODUCT_IMAGE_URL, FALLBACK_PRODUCTS } from '../../data/products';
 
 interface ProductCardsProps {
@@ -18,26 +18,8 @@ const getHeading = (category: string) => {
 
 const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
   const { addItem } = useCart();
-  const [products, setProducts] = useState<ProductItem[]>([]);
-  const [loadingProducts, setLoadingProducts] = useState(true);
   const [feedback, setFeedback] = useState<string | null>(null);
-
-  useEffect(() => {
-    const loadProducts = async () => {
-      setLoadingProducts(true);
-      try {
-        const items = await productsList();
-        setProducts(items);
-      } catch {
-        setProducts(FALLBACK_PRODUCTS);
-      } finally {
-        setLoadingProducts(false);
-      }
-    };
-    void loadProducts();
-  }, []);
-
-  const visibleProducts = useMemo(() => products, [products]);
+  const visibleProducts: ProductItem[] = FALLBACK_PRODUCTS;
 
   const handleAddToCart = async (product: ProductItem) => {
     const defaultSize = product.sizes[0] || 'M';
@@ -69,7 +51,6 @@ const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
       <div className="container">
         <h3 className="products-heading">{getHeading(category)}</h3>
         {feedback ? <p className="products-feedback">{feedback}</p> : null}
-        {loadingProducts ? <p className="products-feedback">Loading products…</p> : null}
         <div className="products-grid">
           {visibleProducts.map((product, idx) => (
             <Link

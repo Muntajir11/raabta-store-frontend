@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingBag, Heart, Ruler } from 'lucide-react';
 import type { Product } from '../../data/products';
 import { DUMMY_PRODUCTS, FALLBACK_PRODUCTS } from '../../data/products';
-import { productsList, type ProductItem } from '../../lib/api';
+import type { ProductItem } from '../../lib/api';
 import ProductReviews from '../../components/ProductReviews/ProductReviews';
 import SizeGuideModal from '../../components/SizeGuideModal/SizeGuideModal';
 import './ProductPage.css';
@@ -20,6 +20,12 @@ function resolveProduct(routeId: string | undefined): Resolved | null {
     const dummy = DUMMY_PRODUCTS.find((p) => p.id === numericId);
     if (dummy) return { kind: 'dummy', product: dummy };
   }
+
+  const catalogItem = FALLBACK_PRODUCTS.find((p) => p.id === routeId);
+  if (catalogItem) {
+    return { kind: 'catalog', item: catalogItem };
+  }
+
   return null;
 }
 
@@ -48,29 +54,7 @@ const ProductPage: React.FC = () => {
       return;
     }
 
-    if (!routeId) {
-      setResolved(null);
-      return;
-    }
-
-    let cancelled = false;
-    void (async () => {
-      try {
-        const items = await productsList();
-        const item = items.find((p) => p.id === routeId) ?? null;
-        if (cancelled) return;
-        if (item) setResolved({ kind: 'catalog', item });
-        else setResolved(null);
-      } catch {
-        if (cancelled) return;
-        const item = FALLBACK_PRODUCTS.find((p) => p.id === routeId) ?? null;
-        setResolved(item ? { kind: 'catalog', item } : null);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
+    setResolved(null);
   }, [routeId]);
 
   if (resolved === undefined) {
