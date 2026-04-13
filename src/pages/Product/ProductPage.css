@@ -222,6 +222,20 @@
   border-color: #333;
 }
 
+.size-btn.disabled,
+.size-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  background-color: #f3f4f6;
+  color: #6b7280;
+  border-color: #e5e7eb;
+}
+
+.size-btn.disabled:hover,
+.size-btn:disabled:hover {
+  border-color: #e5e7eb;
+}
+
 .product-actions {
   display: flex;
   gap: 1rem;

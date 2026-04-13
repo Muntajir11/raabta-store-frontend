@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingBag, Star } from 'lucide-react';
 import './ProductCards.css';
 import { useCart } from '../../lib/cart-context';
 import type { ProductItem } from '../../lib/api';
-import { FALLBACK_PRODUCT_IMAGE_URL, FALLBACK_PRODUCTS } from '../../data/products';
+import { useProducts } from '../../lib/products';
+import { routeCategoryToSectionName } from '../../lib/product-sections';
+import { productCardImageUrl } from '../../lib/cloudinary';
 
 interface ProductCardsProps {
   category: string;
@@ -18,8 +20,21 @@ const getHeading = (category: string) => {
 
 const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
   const { addItem } = useCart();
+  const { status, error, ensureLoaded, getBySection } = useProducts();
   const [feedback, setFeedback] = useState<string | null>(null);
-  const visibleProducts: ProductItem[] = FALLBACK_PRODUCTS;
+
+  const sectionName = useMemo(() => routeCategoryToSectionName(category), [category]);
+
+  useEffect(() => {
+    void ensureLoaded();
+  }, [ensureLoaded]);
+
+  const visibleProducts: ProductItem[] = useMemo(() => {
+    if (!sectionName) return [];
+    return getBySection(sectionName);
+  }, [getBySection, sectionName]);
+
+  const FALLBACK_PRODUCT_IMAGE_URL = 'https://placehold.co/600x700?text=Raabta';
 
   const handleAddToCart = async (product: ProductItem) => {
     const defaultSize = product.sizes[0] || 'M';
@@ -51,6 +66,10 @@ const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
       <div className="container">
         <h3 className="products-heading">{getHeading(category)}</h3>
         {feedback ? <p className="products-feedback">{feedback}</p> : null}
+        {status === 'loading' ? <p className="products-feedback">Loading products…</p> : null}
+        {status === 'error' ? (
+          <p className="products-feedback">{error || 'Unable to load products right now'}</p>
+        ) : null}
         <div className="products-grid">
           {visibleProducts.map((product, idx) => (
             <Link
@@ -61,7 +80,9 @@ const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
             >
               <div className="product-image-wrapper">
                 <img
-                  src={product.image}
+                  src={productCardImageUrl(product.image, 430)}
+                  srcSet={`${productCardImageUrl(product.image, 430)} 430w, ${productCardImageUrl(product.image, 600)} 600w`}
+                  sizes="(max-width: 768px) 50vw, 33vw"
                   alt={product.name}
                   className="product-image"
                   loading="lazy"
@@ -101,7 +122,7 @@ const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
                 </div>
                 <h4 className="product-name">{product.name}</h4>
                 <div className="product-price-row">
-                  <p className="product-price">Rs. {Math.round(product.price * 83)}</p>
+                  <p className="product-price">Rs. {Math.round(product.price)}</p>
                 </div>
               </div>
             </Link>

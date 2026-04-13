@@ -449,6 +449,14 @@
   margin-top: 0.35rem;
 }
 
+.mobile-nav-logout {
+  color: var(--color-red, #c41e3a);
+}
+
+.mobile-nav-logout:hover {
+  background: #fef2f2;
+}
+
 .mobile-nav-segment.active {
   background: #fef2f2;
   color: var(--color-red, #c41e3a);

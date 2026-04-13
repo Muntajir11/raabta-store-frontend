@@ -5,7 +5,6 @@ import toast from 'react-hot-toast';
 import { ArrowLeft, Trash2, X } from 'lucide-react';
 import { authSession } from '../../lib/api';
 import { useCart } from '../../lib/cart-context';
-import { FALLBACK_PRODUCT_IMAGE_URL } from '../../data/products';
 import frontUrl from '../../assets/customisation/front.png';
 import backUrl from '../../assets/customisation/back.png';
 import sideUrl from '../../assets/customisation/side.png';
@@ -32,6 +31,7 @@ import './CustomiseDesignPage.css';
 
 const SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL'] as const;
 const GSM_OPTIONS = [180, 210, 240] as const;
+const FALLBACK_PRODUCT_IMAGE_URL = 'https://placehold.co/600x700?text=Raabta';
 
 const TEMPLATE_URL: Record<EditorView, string> = {
   front: frontUrl,

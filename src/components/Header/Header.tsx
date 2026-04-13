@@ -119,33 +119,6 @@ const Header: React.FC = () => {
                 </button>
               </div>
               <nav className="mobile-nav-body" aria-label="Main navigation">
-                {isLoggedIn ? (
-                  <div className="mobile-nav-block">
-                    <p className="mobile-nav-block-label">Account</p>
-                    <Link to="#" className="mobile-nav-link mobile-nav-link--primary" onClick={() => setMobileNavOpen(false)}>
-                      My account
-                    </Link>
-                    <Link to="#" className="mobile-nav-link" onClick={() => setMobileNavOpen(false)}>
-                      My address
-                    </Link>
-                    <Link to="#" className="mobile-nav-link" onClick={() => setMobileNavOpen(false)}>
-                      Settings
-                    </Link>
-                    <button type="button" className="mobile-nav-link mobile-nav-link--danger" onClick={() => void handleLogout()}>
-                      Log out
-                    </button>
-                  </div>
-                ) : (
-                  <div className="mobile-nav-block">
-                    <p className="mobile-nav-block-label">Account</p>
-                    <Link to="/login" className="mobile-nav-link mobile-nav-link--primary" onClick={() => setMobileNavOpen(false)}>
-                      Log in
-                    </Link>
-                    <Link to="/signup" className="mobile-nav-link mobile-nav-link--outline" onClick={() => setMobileNavOpen(false)}>
-                      Sign up
-                    </Link>
-                  </div>
-                )}
                 <div className="mobile-nav-block">
                   <p className="mobile-nav-block-label">Shop</p>
                   {categories.map((category) => (
@@ -160,6 +133,53 @@ const Header: React.FC = () => {
                     </NavLink>
                   ))}
                 </div>
+                {isLoggedIn ? (
+                  <div className="mobile-nav-block">
+                    <p className="mobile-nav-block-label">Account</p>
+                    <Link
+                      to="#"
+                      className="nav-link segment-link mobile-nav-segment mobile-nav-link"
+                      onClick={() => setMobileNavOpen(false)}
+                    >
+                      My account
+                    </Link>
+                    <Link
+                      to="#"
+                      className="nav-link segment-link mobile-nav-segment mobile-nav-link"
+                      onClick={() => setMobileNavOpen(false)}
+                    >
+                      My address
+                    </Link>
+                    <Link
+                      to="#"
+                      className="nav-link segment-link mobile-nav-segment mobile-nav-link"
+                      onClick={() => setMobileNavOpen(false)}
+                    >
+                      Settings
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="mobile-nav-block">
+                    <p className="mobile-nav-block-label">Account</p>
+                    <Link to="/login" className="mobile-nav-link mobile-nav-link--primary" onClick={() => setMobileNavOpen(false)}>
+                      Log in
+                    </Link>
+                    <Link to="/signup" className="mobile-nav-link mobile-nav-link--outline" onClick={() => setMobileNavOpen(false)}>
+                      Sign up
+                    </Link>
+                  </div>
+                )}
+                {isLoggedIn ? (
+                  <div className="mobile-nav-block">
+                    <button
+                      type="button"
+                      className="nav-link segment-link mobile-nav-segment mobile-nav-link mobile-nav-logout"
+                      onClick={() => void handleLogout()}
+                    >
+                      Log out
+                    </button>
+                  </div>
+                ) : null}
               </nav>
             </aside>
           </>,

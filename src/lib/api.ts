@@ -56,6 +56,13 @@ export type ProductGsmOption = {
   price: number;
 };
 
+export type ProductInventoryRow = {
+  size: string;
+  color: string;
+  gsm: number;
+  qty: number;
+};
+
 export type ProductItem = {
   id: string;
   name: string;
@@ -65,6 +72,7 @@ export type ProductItem = {
   sizes: string[];
   colors: string[];
   gsmOptions: ProductGsmOption[];
+  inventory?: ProductInventoryRow[];
 };
 
 export class ApiRequestError extends Error {
@@ -404,6 +412,27 @@ export async function productsList(): Promise<ProductItem[]> {
     const gsmOptions = item.gsmOptions
       .filter((v) => isRecord(v) && typeof v.gsm === 'number' && typeof v.price === 'number')
       .map((v) => ({ gsm: v.gsm as number, price: v.price as number }));
+
+    const inventoryRaw = isRecord(item) && Array.isArray((item as Record<string, unknown>).inventory)
+      ? ((item as Record<string, unknown>).inventory as unknown[])
+      : undefined;
+    const inventory = inventoryRaw
+      ? inventoryRaw
+          .filter(
+            (v) =>
+              isRecord(v) &&
+              typeof v.size === 'string' &&
+              typeof v.color === 'string' &&
+              typeof v.gsm === 'number' &&
+              typeof v.qty === 'number'
+          )
+          .map((v) => ({
+            size: String((v as Record<string, unknown>).size),
+            color: String((v as Record<string, unknown>).color),
+            gsm: Number((v as Record<string, unknown>).gsm),
+            qty: Number((v as Record<string, unknown>).qty),
+          }))
+      : undefined;
     return {
       id: item.id,
       name: item.name,
@@ -413,6 +442,7 @@ export async function productsList(): Promise<ProductItem[]> {
       sizes,
       colors,
       gsmOptions,
+      inventory,
     };
   });
 }

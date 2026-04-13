@@ -1,63 +1,44 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShoppingBag, Heart, Ruler } from 'lucide-react';
-import type { Product } from '../../data/products';
-import { DUMMY_PRODUCTS, FALLBACK_PRODUCTS } from '../../data/products';
 import type { ProductItem } from '../../lib/api';
+import { useProducts } from '../../lib/products';
+import { useCart } from '../../lib/cart-context';
 import ProductReviews from '../../components/ProductReviews/ProductReviews';
 import SizeGuideModal from '../../components/SizeGuideModal/SizeGuideModal';
 import './ProductPage.css';
 
-type Resolved =
-  | { kind: 'dummy'; product: Product }
-  | { kind: 'catalog'; item: ProductItem };
-
-function resolveProduct(routeId: string | undefined): Resolved | null {
-  if (!routeId) return null;
-
-  const numericId = /^\d+$/.test(routeId) ? parseInt(routeId, 10) : NaN;
-  if (!Number.isNaN(numericId)) {
-    const dummy = DUMMY_PRODUCTS.find((p) => p.id === numericId);
-    if (dummy) return { kind: 'dummy', product: dummy };
-  }
-
-  const catalogItem = FALLBACK_PRODUCTS.find((p) => p.id === routeId);
-  if (catalogItem) {
-    return { kind: 'catalog', item: catalogItem };
-  }
-
-  return null;
-}
-
 const PLACEHOLDER_DESCRIPTION =
   'This is a premium quality garment made from 100% breathable cotton. Carefully designed for maximum comfort and an oversized, relaxed fit. Perfect for everyday wear.';
-
-function inrFromUsd(usd: number): number {
-  return Math.round(usd * 83);
-}
 
 const ProductPage: React.FC = () => {
   const navigate = useNavigate();
   const routeId = useParams<{ productId: string }>().productId;
-  const [resolved, setResolved] = useState<Resolved | null | undefined>(undefined);
+  const { status, ensureLoaded, getById } = useProducts();
+  const { addItem } = useCart();
+  const [loading, setLoading] = useState<boolean>(true);
   const [selectedSize, setSelectedSize] = useState<string>('');
+  const [selectedColor, setSelectedColor] = useState<string>('');
+  const [selectedGsm, setSelectedGsm] = useState<number | null>(null);
   const [selectedImageIdx, setSelectedImageIdx] = useState<number>(0);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState<boolean>(false);
+  const [adding, setAdding] = useState(false);
 
   useEffect(() => {
     setSelectedImageIdx(0);
     setSelectedSize('');
+    setSelectedColor('');
+    setSelectedGsm(null);
+    setLoading(true);
+    void ensureLoaded().finally(() => setLoading(false));
+  }, [ensureLoaded, routeId]);
 
-    const staticMatch = resolveProduct(routeId);
-    if (staticMatch) {
-      setResolved(staticMatch);
-      return;
-    }
+  const item: ProductItem | undefined = useMemo(() => {
+    if (!routeId) return undefined;
+    return getById(routeId);
+  }, [getById, routeId]);
 
-    setResolved(null);
-  }, [routeId]);
-
-  if (resolved === undefined) {
+  if (loading || status === 'loading') {
     return (
       <div className="product-not-found">
         <p className="product-page-loading">Loading product…</p>
@@ -65,7 +46,7 @@ const ProductPage: React.FC = () => {
     );
   }
 
-  if (resolved === null) {
+  if (!item) {
     return (
       <div className="product-not-found">
         <h2>Product Not Found</h2>
@@ -76,24 +57,71 @@ const ProductPage: React.FC = () => {
     );
   }
 
-  const isDummy = resolved.kind === 'dummy';
-  const product = isDummy ? resolved.product : null;
-  const item = !isDummy ? resolved.item : null;
+  const name = item.name;
+  const brand = 'Raabta®';
+  const images = [item.image];
+  const sizes = item.sizes ?? ['S', 'M', 'L', 'XL', 'XXL'];
+  const colors = item.colors ?? [];
+  const gsmOptions = item.gsmOptions ?? [];
 
-  const name = product?.name ?? item!.name;
-  const brand = product?.brand ?? 'Raabta®';
-  const images = product?.images ?? [product?.image ?? item!.image];
-  const sizes = product?.sizes ?? item!.sizes ?? ['S', 'M', 'L', 'XL', 'XXL'];
-  const colors = product?.colors ?? item!.colors ?? [];
+  const effectiveColor = selectedColor || colors[0] || '';
+  const effectiveGsm = selectedGsm ?? (gsmOptions[0]?.gsm ?? null);
 
-  const priceLabel = product?.price ?? `Rs. ${inrFromUsd(item!.gsmOptions[0]?.price ?? item!.price)}`;
-  const mrp = product?.mrp;
-  const discount = product?.discount;
-  const rating = product?.rating;
-  const reviewsCount = product?.reviewsCount;
-  const description = product?.description ?? PLACEHOLDER_DESCRIPTION;
+  const inventory = item.inventory || [];
+  const hasInventory = inventory.length > 0;
 
-  const reviewsProductId = isDummy ? product!.id : undefined;
+  const qtyForVariant = (size: string, color: string, gsm: number | null): number | null => {
+    if (!hasInventory) return null;
+    if (!gsm || !color) return 0;
+    const row = inventory.find(
+      (r) =>
+        String(r.size).trim().toUpperCase() === String(size).trim().toUpperCase() &&
+        String(r.color).trim().toLowerCase() === String(color).trim().toLowerCase() &&
+        Number(r.gsm) === Number(gsm)
+    );
+    return row ? Number(row.qty) : 0;
+  };
+
+  const isSizeAvailable = (size: string): boolean => {
+    if (!hasInventory) return true;
+    const q = qtyForVariant(size, effectiveColor, effectiveGsm);
+    return (q ?? 0) > 0;
+  };
+
+  const selectedGsmPrice = useMemo(() => {
+    if (!effectiveGsm) return item.price;
+    const opt = gsmOptions.find((o) => Number(o.gsm) === Number(effectiveGsm));
+    return opt?.price ?? item.price;
+  }, [effectiveGsm, gsmOptions, item.price]);
+
+  const priceLabel = `Rs. ${Math.round(selectedGsmPrice)}`;
+  const rating = 4.8;
+  const reviewsCount = 128;
+  const description = PLACEHOLDER_DESCRIPTION;
+
+  async function handleAddToBag() {
+    if (!item) return;
+    if (!effectiveColor || !effectiveGsm) return;
+    if (!selectedSize) return;
+    if (hasInventory && !isSizeAvailable(selectedSize)) return;
+
+    setAdding(true);
+    try {
+      await addItem({
+        productId: item.id,
+        name: item.name,
+        price: selectedGsmPrice,
+        image: item.image,
+        category: item.category,
+        size: selectedSize,
+        color: effectiveColor,
+        gsm: effectiveGsm,
+        qty: 1,
+      });
+    } finally {
+      setAdding(false);
+    }
+  }
 
   return (
     <div className="product-page">
@@ -130,8 +158,6 @@ const ProductPage: React.FC = () => {
 
           <div className="product-price-section">
             <span className="current-price">{priceLabel}</span>
-            {mrp && <span className="mrp-price">{mrp}</span>}
-            {discount && <span className="discount-tag">{discount}</span>}
           </div>
           <p className="inclusive-taxes">inclusive of all taxes</p>
 
@@ -140,16 +166,36 @@ const ProductPage: React.FC = () => {
               <h4>COLOR</h4>
               <div className="color-options">
                 {colors.map((color, idx) => (
-                  <div
+                  <button
                     key={idx}
-                    className={`color-swatch ${idx === 0 ? 'selected' : ''}`}
+                    type="button"
+                    className={`color-swatch ${String(effectiveColor).toLowerCase() === String(color).toLowerCase() ? 'selected' : ''}`}
                     style={{ backgroundColor: color }}
                     title={color}
+                    onClick={() => setSelectedColor(color)}
                   />
                 ))}
               </div>
             </div>
           )}
+
+          {gsmOptions.length > 0 ? (
+            <div className="color-selection">
+              <h4>GSM</h4>
+              <div className="color-options">
+                {gsmOptions.map((o) => (
+                  <button
+                    key={o.gsm}
+                    type="button"
+                    className={`size-btn ${effectiveGsm === o.gsm ? 'selected' : ''}`}
+                    onClick={() => setSelectedGsm(o.gsm)}
+                  >
+                    {o.gsm}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
 
           <div className="size-selection">
             <div className="size-header">
@@ -163,8 +209,12 @@ const ProductPage: React.FC = () => {
                 <button
                   key={size}
                   type="button"
-                  className={`size-btn ${selectedSize === size ? 'selected' : ''}`}
-                  onClick={() => setSelectedSize(size)}
+                  disabled={!isSizeAvailable(size)}
+                  className={`size-btn ${selectedSize === size ? 'selected' : ''} ${!isSizeAvailable(size) ? 'disabled' : ''}`}
+                  onClick={() => {
+                    if (!isSizeAvailable(size)) return;
+                    setSelectedSize(size);
+                  }}
                 >
                   {size}
                 </button>
@@ -173,8 +223,13 @@ const ProductPage: React.FC = () => {
           </div>
 
           <div className="product-actions">
-            <button type="button" className="btn-add-to-bag">
-              <ShoppingBag size={20} /> ADD TO BAG
+            <button
+              type="button"
+              className="btn-add-to-bag"
+              disabled={!selectedSize || (hasInventory && !isSizeAvailable(selectedSize)) || adding}
+              onClick={() => void handleAddToBag()}
+            >
+              <ShoppingBag size={20} /> {adding ? 'ADDING…' : 'ADD TO BAG'}
             </button>
             <button type="button" className="btn-wishlist">
               <Heart size={20} /> WISHLIST
@@ -217,7 +272,7 @@ const ProductPage: React.FC = () => {
         </div>
       </div>
 
-      <ProductReviews productId={reviewsProductId} rating={rating} reviewsCount={reviewsCount} />
+      <ProductReviews productId={undefined} rating={rating} reviewsCount={reviewsCount} />
 
       <SizeGuideModal isOpen={isSizeGuideOpen} onClose={() => setIsSizeGuideOpen(false)} />
     </div>
