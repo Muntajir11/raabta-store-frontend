@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { CircleUserRound, Menu, Search, ShoppingBag, X } from 'lucide-react';
+import { Menu, Search, ShoppingBag, X } from 'lucide-react';
 import './Header.css';
 import logoImg from '../../assets/raabta/YOUR - 2.JPG.jpeg';
 import {
@@ -10,6 +10,7 @@ import {
   authSession,
 } from '../../lib/api';
 import { useCart } from '../../lib/cart-context';
+import { avatarDataUrlFromSeed, randomAvatarDataUrl } from '../../lib/avatar';
 
 const Header: React.FC = () => {
   const location = useLocation();
@@ -17,10 +18,12 @@ const Header: React.FC = () => {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
+  const avatarSrc = useRef<string>(randomAvatarDataUrl());
   const { totalItems } = useCart();
   const categories = [
     { id: '', label: 'Home' },
     { id: 'anime', label: 'Anime' },
+    { id: 'gaming', label: 'Gaming' },
     { id: 'sports', label: 'Sports' },
     { id: 'streetwear', label: 'Streetwear' },
     { id: 'customisation', label: 'Customisation' },
@@ -32,8 +35,14 @@ const Header: React.FC = () => {
       try {
         const session = await authSession();
         setIsLoggedIn(Boolean(session));
+        if (session?.avatarSeed) {
+          avatarSrc.current = avatarDataUrlFromSeed(session.avatarSeed);
+        } else {
+          avatarSrc.current = randomAvatarDataUrl();
+        }
       } catch {
         setIsLoggedIn(false);
+        avatarSrc.current = randomAvatarDataUrl();
       }
     };
     void refreshAuthState();
@@ -137,21 +146,28 @@ const Header: React.FC = () => {
                   <div className="mobile-nav-block">
                     <p className="mobile-nav-block-label">Account</p>
                     <Link
-                      to="#"
+                      to="/account"
                       className="nav-link segment-link mobile-nav-segment mobile-nav-link"
                       onClick={() => setMobileNavOpen(false)}
                     >
                       My account
                     </Link>
                     <Link
-                      to="#"
+                      to="/orders"
                       className="nav-link segment-link mobile-nav-segment mobile-nav-link"
                       onClick={() => setMobileNavOpen(false)}
                     >
-                      My address
+                      My orders
                     </Link>
                     <Link
-                      to="#"
+                      to="/wishlist"
+                      className="nav-link segment-link mobile-nav-segment mobile-nav-link"
+                      onClick={() => setMobileNavOpen(false)}
+                    >
+                      Wishlist
+                    </Link>
+                    <Link
+                      to="/settings"
                       className="nav-link segment-link mobile-nav-segment mobile-nav-link"
                       onClick={() => setMobileNavOpen(false)}
                     >
@@ -161,12 +177,22 @@ const Header: React.FC = () => {
                 ) : (
                   <div className="mobile-nav-block">
                     <p className="mobile-nav-block-label">Account</p>
-                    <Link to="/login" className="mobile-nav-link mobile-nav-link--primary" onClick={() => setMobileNavOpen(false)}>
-                      Log in
-                    </Link>
-                    <Link to="/signup" className="mobile-nav-link mobile-nav-link--outline" onClick={() => setMobileNavOpen(false)}>
-                      Sign up
-                    </Link>
+                    <div className="auth-segmented auth-segmented--mobile" role="group" aria-label="Auth">
+                      <NavLink
+                        to="/login"
+                        className={({ isActive }) => `auth-pill${isActive ? ' auth-pill--active' : ''}`}
+                        onClick={() => setMobileNavOpen(false)}
+                      >
+                        Log in
+                      </NavLink>
+                      <NavLink
+                        to="/signup"
+                        className={({ isActive }) => `auth-pill${isActive ? ' auth-pill--active' : ''}`}
+                        onClick={() => setMobileNavOpen(false)}
+                      >
+                        Sign up
+                      </NavLink>
+                    </div>
                   </div>
                 )}
                 {isLoggedIn ? (
@@ -251,13 +277,19 @@ const Header: React.FC = () => {
             </Link>
 
             {!isLoggedIn ? (
-              <div className="auth-actions header-desktop-only">
-                <Link to="/login" className="nav-link">
+              <div className="auth-segmented header-desktop-only" role="group" aria-label="Auth">
+                <NavLink
+                  to="/login"
+                  className={({ isActive }) => `auth-pill${isActive ? ' auth-pill--active' : ''}`}
+                >
                   Log in
-                </Link>
-                <Link to="/signup" className="nav-link signup-btn">
+                </NavLink>
+                <NavLink
+                  to="/signup"
+                  className={({ isActive }) => `auth-pill${isActive ? ' auth-pill--active' : ''}`}
+                >
                   Sign up
-                </Link>
+                </NavLink>
               </div>
             ) : null}
 
@@ -271,20 +303,23 @@ const Header: React.FC = () => {
                   setIsProfileMenuOpen((prev) => !prev);
                 }}
               >
-                <CircleUserRound size={20} />
+                <img className="profile-avatar" src={avatarSrc.current} alt="" aria-hidden />
               </button>
 
               {isProfileMenuOpen ? (
                 <div className="profile-menu-card" role="menu" aria-label="Profile menu">
                   {isLoggedIn ? (
                     <>
-                      <Link to="#" className="profile-menu-item" role="menuitem">
+                      <Link to="/account" className="profile-menu-item" role="menuitem">
                         My Account
                       </Link>
-                      <Link to="#" className="profile-menu-item" role="menuitem">
-                        My Address
+                      <Link to="/orders" className="profile-menu-item" role="menuitem">
+                        My orders
                       </Link>
-                      <Link to="#" className="profile-menu-item" role="menuitem">
+                      <Link to="/wishlist" className="profile-menu-item" role="menuitem">
+                        Wishlist
+                      </Link>
+                      <Link to="/settings" className="profile-menu-item" role="menuitem">
                         Settings
                       </Link>
                       <button

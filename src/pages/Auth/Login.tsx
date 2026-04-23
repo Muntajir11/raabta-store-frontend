@@ -1,5 +1,5 @@
 import React, { useState, type ComponentProps } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   ApiRequestError,
   authLogin,
@@ -9,6 +9,9 @@ import './Auth.css';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectTo =
+    (location.state as { from?: { pathname: string } } | null | undefined)?.from?.pathname ?? '/';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,7 +28,7 @@ const Login: React.FC = () => {
     try {
       await authLogin({ email, password });
       notifyAuthChanged();
-      navigate('/');
+      navigate(redirectTo, { replace: true });
     } catch (err) {
       const message =
         err instanceof ApiRequestError

@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, ShoppingBag, Star } from 'lucide-react';
+import { Heart, Star } from 'lucide-react';
 import './ProductCards.css';
-import { useCart } from '../../lib/cart-context';
 import type { ProductItem } from '../../lib/api';
 import { useProducts } from '../../lib/products';
 import { routeCategoryToSectionName } from '../../lib/product-sections';
@@ -19,9 +18,7 @@ const getHeading = (category: string) => {
 };
 
 const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
-  const { addItem } = useCart();
   const { status, error, ensureLoaded, getBySection } = useProducts();
-  const [feedback, setFeedback] = useState<string | null>(null);
 
   const sectionName = useMemo(() => routeCategoryToSectionName(category), [category]);
 
@@ -36,36 +33,10 @@ const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
 
   const FALLBACK_PRODUCT_IMAGE_URL = 'https://placehold.co/600x700?text=Raabta';
 
-  const handleAddToCart = async (product: ProductItem) => {
-    const defaultSize = product.sizes[0] || 'M';
-    const defaultColor = product.colors[0] || 'Black';
-    const defaultGsmOption = product.gsmOptions[0] || { gsm: 180, price: product.price };
-
-    try {
-      await addItem({
-        productId: product.id,
-        name: product.name,
-        price: defaultGsmOption.price,
-        image: product.image,
-        category: product.category,
-        size: defaultSize,
-        color: defaultColor,
-        gsm: defaultGsmOption.gsm,
-        qty: 1,
-      });
-      setFeedback(`${product.name} added to cart`);
-      window.setTimeout(() => setFeedback(null), 1600);
-    } catch {
-      setFeedback('Unable to add item right now');
-      window.setTimeout(() => setFeedback(null), 1800);
-    }
-  };
-
   return (
     <section className="products-section">
       <div className="container">
         <h3 className="products-heading">{getHeading(category)}</h3>
-        {feedback ? <p className="products-feedback">{feedback}</p> : null}
         {status === 'loading' ? <p className="products-feedback">Loading products…</p> : null}
         {status === 'error' ? (
           <p className="products-feedback">{error || 'Unable to load products right now'}</p>
@@ -95,18 +66,6 @@ const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
                   <Star size={13} fill="currentColor" />
                   <span>4.8</span>
                 </div>
-                <button
-                  type="button"
-                  className="add-to-cart-btn"
-                  aria-label={`Add ${product.name} to cart`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    void handleAddToCart(product);
-                  }}
-                >
-                  <ShoppingBag size={20} />
-                </button>
               </div>
               <div className="product-info">
                 <div className="product-meta-row">

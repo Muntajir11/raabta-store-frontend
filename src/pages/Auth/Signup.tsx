@@ -13,6 +13,7 @@ const Signup: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [gender, setGender] = useState<'male' | 'female' | ''>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,9 +24,13 @@ const Signup: React.FC = () => {
       setError('Passwords do not match');
       return;
     }
+    if (gender !== 'male' && gender !== 'female') {
+      setError('Please select Male or Female');
+      return;
+    }
     setLoading(true);
     try {
-      await authRegister({ name, email, password });
+      await authRegister({ name, email, password, gender });
       notifyAuthChanged();
       navigate('/');
     } catch (err) {
@@ -80,6 +85,36 @@ const Signup: React.FC = () => {
               required
               disabled={loading}
             />
+          </div>
+
+          <div className="form-group">
+            <label>Gender</label>
+            <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+              <label style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
+                <input
+                  type="radio"
+                  name="gender"
+                  value="male"
+                  checked={gender === 'male'}
+                  onChange={() => setGender('male')}
+                  disabled={loading}
+                  required
+                />
+                Male
+              </label>
+              <label style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
+                <input
+                  type="radio"
+                  name="gender"
+                  value="female"
+                  checked={gender === 'female'}
+                  onChange={() => setGender('female')}
+                  disabled={loading}
+                  required
+                />
+                Female
+              </label>
+            </div>
           </div>
 
           <div className="form-group">

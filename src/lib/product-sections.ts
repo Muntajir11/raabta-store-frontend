@@ -1,5 +1,6 @@
 export const SECTION_NAMES = {
   anime: 'Anime',
+  gaming: 'Gaming',
   sports: 'Sports',
   streetwear: 'Streetwear',
   customisation: 'Customisation',

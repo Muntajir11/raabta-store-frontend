@@ -1,25 +1,30 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import {
   ApiRequestError,
   authSession,
   cartClear,
   cartGet,
   cartRemoveItem,
-  cartUpdateItemQty,
+  profileGet,
   type CartItemIdentity,
   type CartPayload,
+  type ProfileUser,
 } from '../../lib/api';
 import { useCart } from '../../lib/cart-context';
+import { INDIAN_STATES } from '../../lib/india-states';
 import './CartPage.css';
 
 const CartPage: React.FC = () => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [cart, setCart] = useState<CartPayload>({ items: [], totalItems: 0, subtotal: 0 });
   const [error, setError] = useState<string | null>(null);
   const [workingItemId, setWorkingItemId] = useState<string | null>(null);
   const [clearing, setClearing] = useState(false);
+  const [profile, setProfile] = useState<ProfileUser | null>(null);
   const { refreshCart } = useCart();
 
   useEffect(() => {
@@ -31,11 +36,13 @@ const CartPage: React.FC = () => {
         if (!session) {
           setIsLoggedIn(false);
           setCart({ items: [], totalItems: 0, subtotal: 0 });
+          setProfile(null);
           return;
         }
         setIsLoggedIn(true);
-        const data = await cartGet();
+        const [data, p] = await Promise.all([cartGet(), profileGet()]);
         setCart(data);
+        setProfile(p);
       } catch (err) {
         const message =
           err instanceof ApiRequestError
@@ -52,6 +59,29 @@ const CartPage: React.FC = () => {
   }, []);
 
   const canShowActions = useMemo(() => isLoggedIn && !loading, [isLoggedIn, loading]);
+
+  const hasValidShipping = useMemo(() => {
+    if (!profile) return false;
+    const phone = profile.phone.trim();
+    const address = profile.address.trim();
+    const city = profile.city.trim();
+    const stateValue = profile.state.trim();
+    const pincode = profile.pincode.trim();
+    const phoneOk = /^[6-9]\d{9}$/.test(phone);
+    const addressOk = address.length >= 5;
+    const cityOk = city.length >= 2;
+    const stateOk = INDIAN_STATES.includes(stateValue);
+    const pincodeOk = /^\d{6}$/.test(pincode);
+    return phoneOk && addressOk && cityOk && stateOk && pincodeOk;
+  }, [profile]);
+
+  const handleCheckout = () => {
+    if (!hasValidShipping) {
+      toast.error('Add your phone number and shipping address before checkout.');
+      return;
+    }
+    navigate('/checkout');
+  };
 
   const applyCartUpdate = async (fn: () => Promise<CartPayload>) => {
     try {
@@ -78,15 +108,6 @@ const CartPage: React.FC = () => {
 
   const itemKey = (item: CartPayload['items'][number]) =>
     `${item.productId}|${item.size}|${item.color}|${item.gsm}`;
-
-  const handleQtyChange = async (item: CartPayload['items'][number], nextQty: number) => {
-    const identity = getItemIdentity(item);
-    const key = itemKey(item);
-    setWorkingItemId(key);
-    setError(null);
-    await applyCartUpdate(() => cartUpdateItemQty(identity, nextQty));
-    setWorkingItemId(null);
-  };
 
   const handleRemove = async (item: CartPayload['items'][number]) => {
     const identity = getItemIdentity(item);
@@ -153,21 +174,11 @@ const CartPage: React.FC = () => {
                       <p className="cart-item-meta">
                         {item.category} | {item.size} | {item.color} | {item.gsm} GSM
                       </p>
-                      <p className="cart-item-price">${item.price.toFixed(2)} each</p>
+                      <p className="cart-item-price">Rs. {Math.round(item.price)} each</p>
                       <div className="cart-item-actions">
-                        <label htmlFor={`qty-${item.productId}`}>Qty</label>
-                        <select
-                          id={`qty-${currentItemKey}`}
-                          value={item.qty}
-                          disabled={disabled}
-                          onChange={(ev) => void handleQtyChange(item, Number(ev.target.value))}
-                        >
-                          {Array.from({ length: 20 }).map((_, idx) => (
-                            <option key={idx + 1} value={idx + 1}>
-                              {idx + 1}
-                            </option>
-                          ))}
-                        </select>
+                        <span className="cart-qty-pill" aria-label={`Quantity ${item.qty}`}>
+                          Qty: {item.qty}
+                        </span>
                         <button
                           type="button"
                           className="cart-remove-btn"
@@ -178,7 +189,7 @@ const CartPage: React.FC = () => {
                         </button>
                       </div>
                     </div>
-                    <div className="cart-item-total">${item.lineTotal.toFixed(2)}</div>
+                    <div className="cart-item-total">Rs. {Math.round(item.lineTotal)}</div>
                   </article>
                 );
               })}
@@ -186,19 +197,35 @@ const CartPage: React.FC = () => {
 
             <aside className="cart-summary-card">
               <h3>Order Summary</h3>
+              {canShowActions && !hasValidShipping ? (
+                <div className="cart-shipping-warning" role="alert">
+                  <p className="cart-shipping-warning-text">
+                    Add your shipping address and phone number to continue.
+                  </p>
+                  <Link to="/account#address" className="cart-auth-link">
+                    Add address
+                  </Link>
+                </div>
+              ) : null}
               <div className="cart-summary-row">
                 <span>Items</span>
                 <span>{cart.totalItems}</span>
               </div>
               <div className="cart-summary-row">
                 <span>Subtotal</span>
-                <span>${cart.subtotal.toFixed(2)}</span>
+                <span>Rs. {Math.round(cart.subtotal)}</span>
               </div>
               <div className="cart-summary-total">
                 <span>Total</span>
-                <span>${cart.subtotal.toFixed(2)}</span>
+                <span>Rs. {Math.round(cart.subtotal)}</span>
               </div>
-              <button type="button" className="cart-checkout-btn">
+              <button
+                type="button"
+                className="cart-checkout-btn"
+                onClick={handleCheckout}
+                disabled={canShowActions && !hasValidShipping}
+                aria-disabled={canShowActions && !hasValidShipping ? true : undefined}
+              >
                 Proceed to Checkout
               </button>
             </aside>

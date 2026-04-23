@@ -110,13 +110,25 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const onAuthChanged = () => {
-      void refreshCart();
+      // On logout, avoid hitting /api/cart immediately (it will 401 and adds log noise).
+      // Guest cart will be shown until user navigates and logs in again.
+      void authSession()
+        .then((session) => {
+          if (!session) {
+            setFromSnapshot(toGuestView(readGuestCart()));
+            return;
+          }
+          return refreshCart();
+        })
+        .catch(() => {
+          setFromSnapshot(toGuestView(readGuestCart()));
+        });
     };
     window.addEventListener(AUTH_EVENT_NAME, onAuthChanged);
     return () => {
       window.removeEventListener(AUTH_EVENT_NAME, onAuthChanged);
     };
-  }, [refreshCart]);
+  }, [refreshCart, setFromSnapshot]);
 
   const addItem = useCallback(
     async (input: CartUpsertInput) => {

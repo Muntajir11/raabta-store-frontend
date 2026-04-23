@@ -1,0 +1,205 @@
+.account-card {
+  border: 1px solid #ececec;
+  border-radius: 12px;
+  padding: 1.25rem;
+  width: 100%;
+  max-width: none;
+}
+
+.account-card + .account-card {
+  margin-top: 1rem;
+}
+
+.account-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.account-hero {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 2px;
+}
+
+.account-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: block;
+  object-fit: cover;
+  background: rgba(15, 23, 42, 0.03);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+}
+
+.account-hero-main {
+  min-width: 0;
+}
+
+.account-hero-name {
+  font-weight: 900;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.account-hero-email {
+  color: #64748b;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-top: 2px;
+}
+
+@media (max-width: 860px) {
+  .account-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.account-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0 0 1rem;
+  color: #111827;
+}
+
+.account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.account-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.account-field label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #475569;
+}
+
+.account-field input,
+.account-field textarea,
+.account-field select {
+  width: 100%;
+  margin: 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  background: #fff;
+  color: #111827;
+  transition: border-color 0.15s ease;
+}
+
+.account-field input:focus,
+.account-field textarea:focus,
+.account-field select:focus {
+  outline: none;
+  border-color: var(--color-black);
+}
+
+.account-field input:disabled,
+.account-field textarea:disabled,
+.account-field select:disabled {
+  background: #f9fafb;
+  color: #64748b;
+}
+
+.account-field textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.account-hint {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.account-hint-tight {
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
+}
+
+.account-error {
+  font-size: 0.875rem;
+  color: #b42318;
+  margin: 0;
+}
+
+.account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 0.25rem;
+}
+
+.account-submit {
+  border: none;
+  border-radius: 999px;
+  padding: 0.55rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--color-black);
+  color: var(--color-white);
+  transition: background 0.15s ease;
+}
+
+.account-submit:hover:not(:disabled) {
+  background: var(--color-red);
+}
+
+.account-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.account-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.account-toggle-row label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.account-toggle {
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+  accent-color: var(--color-black);
+}
+
+.account-divider {
+  border: 0;
+  border-top: 1px solid #ececec;
+  margin: 1rem 0;
+}
+
+.account-logout {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: var(--color-red);
+}
+
+.account-logout:hover:not(:disabled) {
+  border-color: var(--color-red);
+  background: #fff5f5;
+}
