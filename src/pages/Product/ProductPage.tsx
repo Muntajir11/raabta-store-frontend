@@ -33,7 +33,9 @@ const ProductPage: React.FC = () => {
     setSelectedColor('');
     setSelectedGsm(null);
     setLoading(true);
-    void ensureLoaded().finally(() => setLoading(false));
+    ensureLoaded()
+      .catch(() => {})
+      .finally(() => setLoading(false));
     void wishlist.ensureLoaded();
   }, [ensureLoaded, routeId]);
 

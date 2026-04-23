@@ -18,12 +18,12 @@ const getHeading = (category: string) => {
 };
 
 const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
-  const { status, error, ensureLoaded, getBySection } = useProducts();
+  const { status, error, ensureLoaded, reload, getBySection } = useProducts();
 
   const sectionName = useMemo(() => routeCategoryToSectionName(category), [category]);
 
   useEffect(() => {
-    void ensureLoaded();
+    ensureLoaded().catch(() => {});
   }, [ensureLoaded]);
 
   const visibleProducts: ProductItem[] = useMemo(() => {
@@ -39,10 +39,37 @@ const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
         <h3 className="products-heading">{getHeading(category)}</h3>
         {status === 'loading' ? <p className="products-feedback">Loading products…</p> : null}
         {status === 'error' ? (
-          <p className="products-feedback">{error || 'Unable to load products right now'}</p>
+          <div className="products-feedback">
+            <p style={{ margin: 0 }}>No products found.</p>
+            <p style={{ margin: '0.25rem 0 0', opacity: 0.8 }}>
+              {error || 'The server is unreachable right now.'}
+            </p>
+            <button
+              type="button"
+              className="contact-btn"
+              style={{ marginTop: '0.75rem' }}
+              onClick={() => void reload().catch(() => {})}
+            >
+              Try again
+            </button>
+          </div>
+        ) : status === 'ready' && visibleProducts.length === 0 ? (
+          <div className="products-feedback">
+            <p style={{ margin: 0 }}>No products found.</p>
+            <button
+              type="button"
+              className="contact-btn"
+              style={{ marginTop: '0.75rem' }}
+              onClick={() => void reload().catch(() => {})}
+            >
+              Refresh
+            </button>
+          </div>
         ) : null}
-        <div className="products-grid">
-          {visibleProducts.map((product, idx) => (
+
+        {visibleProducts.length > 0 ? (
+          <div className="products-grid">
+            {visibleProducts.map((product, idx) => (
             <Link
               key={`${product.id}-${idx}`}
               to={`/product/${product.id}`}
@@ -85,8 +112,9 @@ const ProductCards: React.FC<ProductCardsProps> = ({ category }) => {
                 </div>
               </div>
             </Link>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : null}
       </div>
     </section>
   );

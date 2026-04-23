@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { productsList, type ProductItem } from './api';
 
 export type ProductsStatus = 'idle' | 'loading' | 'ready' | 'error';
@@ -7,6 +7,7 @@ type ProductsContextValue = {
   status: ProductsStatus;
   error: string | null;
   ensureLoaded: () => Promise<ProductItem[]>;
+  reload: () => Promise<ProductItem[]>;
   getAll: () => ProductItem[];
   getById: (id: string) => ProductItem | undefined;
   getBySection: (sectionName: string) => ProductItem[];
@@ -20,9 +21,15 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<ProductItem[]>([]);
 
   const inflight = useRef<Promise<ProductItem[]> | null>(null);
+  const statusRef = useRef<ProductsStatus>('idle');
+  const itemsRef = useRef<ProductItem[]>([]);
 
-  const ensureLoaded = useCallback(async (): Promise<ProductItem[]> => {
-    if (status === 'ready') return items;
+  useEffect(() => {
+    statusRef.current = status;
+    itemsRef.current = items;
+  }, [items, status]);
+
+  const load = useCallback(async (): Promise<ProductItem[]> => {
     if (inflight.current) return inflight.current;
 
     setStatus('loading');
@@ -46,7 +53,19 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
       });
 
     return inflight.current;
-  }, [items, status]);
+  }, []);
+
+  const ensureLoaded = useCallback(async (): Promise<ProductItem[]> => {
+    const s = statusRef.current;
+    if (s === 'ready') return itemsRef.current;
+    if (s === 'error') return itemsRef.current; // do not retry automatically during same session
+    return load();
+  }, [load]);
+
+  const reload = useCallback(async (): Promise<ProductItem[]> => {
+    statusRef.current = 'idle';
+    return load();
+  }, [load]);
 
   const latestFirst = useMemo(() => items.slice().reverse(), [items]);
 
@@ -68,11 +87,12 @@ export function ProductsProvider({ children }: { children: React.ReactNode }) {
       status,
       error,
       ensureLoaded,
+      reload,
       getAll,
       getById,
       getBySection,
     }),
-    [status, error, ensureLoaded, getAll, getById, getBySection]
+    [status, error, ensureLoaded, reload, getAll, getById, getBySection]
   );
 
   return <ProductsContext.Provider value={value}>{children}</ProductsContext.Provider>;

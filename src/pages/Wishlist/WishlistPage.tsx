@@ -10,7 +10,7 @@ export default function WishlistPage() {
   const wishlist = useWishlist();
 
   useEffect(() => {
-    void ensureLoaded();
+    ensureLoaded().catch(() => {});
     void wishlist.ensureLoaded();
   }, [ensureLoaded, wishlist]);
 
