@@ -68,6 +68,7 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     setMobileNavOpen(false);
+    setIsProfileMenuOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -234,31 +235,6 @@ const Header: React.FC = () => {
           </Link>
         </div>
 
-        <div className="header-segments header-segments--desktop">
-          {categories.map((category, index) => (
-            <React.Fragment key={category.id}>
-              <NavLink
-                to={category.id ? `/category/${category.id}` : '/'}
-                end={!category.id}
-                className={({ isActive }) => {
-                  const customisationActive =
-                    category.id === 'customisation' &&
-                    (location.pathname.startsWith('/customisation/') ||
-                      location.pathname === '/category/customisation');
-                  const active =
-                    category.id === 'customisation' ? customisationActive : isActive;
-                  return `nav-link segment-link${active ? ' active' : ''}`;
-                }}
-              >
-                {category.label}
-              </NavLink>
-              {index < categories.length - 1 ? (
-                <span className="separator">|</span>
-              ) : null}
-            </React.Fragment>
-          ))}
-        </div>
-
         <div className="header-tools">
           <div className="header-search">
             <div className="search-wrapper">
@@ -293,57 +269,44 @@ const Header: React.FC = () => {
               </div>
             ) : null}
 
-            <div className="profile-menu-wrap header-desktop-only" ref={profileMenuRef}>
-              <button
-                className="profile-btn"
-                type="button"
-                aria-label="Profile"
-                aria-expanded={isProfileMenuOpen}
-                onClick={() => {
-                  setIsProfileMenuOpen((prev) => !prev);
-                }}
-              >
-                <img className="profile-avatar" src={avatarSrc.current} alt="" aria-hidden />
-              </button>
+            {isLoggedIn ? (
+              <div className="profile-menu-wrap header-desktop-only" ref={profileMenuRef}>
+                <button
+                  className="profile-btn"
+                  type="button"
+                  aria-label="Profile"
+                  aria-expanded={isProfileMenuOpen}
+                  onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                >
+                  <img className="profile-avatar" src={avatarSrc.current} alt="" aria-hidden />
+                </button>
 
-              {isProfileMenuOpen ? (
-                <div className="profile-menu-card" role="menu" aria-label="Profile menu">
-                  {isLoggedIn ? (
-                    <>
-                      <Link to="/account" className="profile-menu-item" role="menuitem">
-                        My Account
-                      </Link>
-                      <Link to="/orders" className="profile-menu-item" role="menuitem">
-                        My orders
-                      </Link>
-                      <Link to="/wishlist" className="profile-menu-item" role="menuitem">
-                        Wishlist
-                      </Link>
-                      <Link to="/settings" className="profile-menu-item" role="menuitem">
-                        Settings
-                      </Link>
-                      <button
-                        type="button"
-                        className="profile-menu-item profile-menu-logout"
-                        role="menuitem"
-                        onClick={handleLogout}
-                      >
-                        Log out
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <Link to="/login" className="profile-menu-item" role="menuitem">
-                        Log in
-                      </Link>
-                      <Link to="/signup" className="profile-menu-item" role="menuitem">
-                        Sign up
-                      </Link>
-                    </>
-                  )}
-                </div>
-              ) : null}
-            </div>
+                {isProfileMenuOpen ? (
+                  <div className="profile-menu-card" role="menu" aria-label="Profile menu">
+                    <Link to="/account" className="profile-menu-item" role="menuitem">
+                      My account
+                    </Link>
+                    <Link to="/orders" className="profile-menu-item" role="menuitem">
+                      My orders
+                    </Link>
+                    <Link to="/wishlist" className="profile-menu-item" role="menuitem">
+                      Wishlist
+                    </Link>
+                    <Link to="/settings" className="profile-menu-item" role="menuitem">
+                      Settings
+                    </Link>
+                    <button
+                      type="button"
+                      className="profile-menu-item profile-menu-logout"
+                      role="menuitem"
+                      onClick={handleLogout}
+                    >
+                      Log out
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
           </div>
         </div>
 

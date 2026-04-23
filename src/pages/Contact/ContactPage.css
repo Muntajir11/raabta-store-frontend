@@ -1,0 +1,129 @@
+.contact {
+  padding: 2.25rem 0 3.5rem;
+}
+
+.contact-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1.25rem;
+}
+
+.contact-title {
+  margin: 0;
+  font-size: 1.8rem;
+  letter-spacing: -0.02em;
+  color: var(--color-black);
+}
+
+.contact-subtitle {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.98rem;
+}
+
+.contact-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1.1rem;
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+}
+
+.contact-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.contact-field.full {
+  grid-column: 1 / -1;
+}
+
+.contact-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.contact-input,
+.contact-textarea {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.7rem 0.8rem;
+  font: inherit;
+  outline: none;
+  background: #fff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.contact-textarea {
+  resize: vertical;
+  min-height: 140px;
+}
+
+.contact-input:focus,
+.contact-textarea:focus {
+  border-color: rgba(15, 23, 42, 0.55);
+  box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.08);
+}
+
+.contact-error {
+  font-size: 0.85rem;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.contact-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.3rem;
+}
+
+.contact-btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.75rem 1.25rem;
+  background: var(--color-black);
+  color: var(--color-white);
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.08s ease, opacity 0.15s ease, background-color 0.15s ease;
+}
+
+.contact-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.contact-btn:not(:disabled):active {
+  transform: translateY(1px);
+}
+
+@media (max-width: 768px) {
+  .contact {
+    padding: 1.25rem 0 2.25rem;
+  }
+
+  .contact-title {
+    font-size: 1.45rem;
+  }
+
+  .contact-card {
+    padding: 0.95rem;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

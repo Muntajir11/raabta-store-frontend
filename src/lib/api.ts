@@ -201,6 +201,13 @@ export type ShippingAddress = {
   landmark?: string;
 };
 
+export type ContactSubmitInput = {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+};
+
 export type OrderDetail = {
   id: string;
   orderNumber: string;
@@ -425,6 +432,31 @@ async function requestJson(path: string, init: RequestInit): Promise<{ res: Resp
   });
   const parsed = await parseJson(res);
   return { res, parsed };
+}
+
+export async function contactSubmit(input: ContactSubmitInput): Promise<void> {
+  const { res, parsed } = await requestJson('/api/contact', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: input.name.trim(),
+      email: input.email.trim(),
+      phone: input.phone.trim(),
+      message: input.message.trim(),
+    }),
+  });
+
+  if (!res.ok) {
+    const message = readErrorMessage(parsed, 'Request failed');
+    const code = readErrorCode(parsed);
+    throw new ApiRequestError(message, res.status, code);
+  }
+
+  if (!isRecord(parsed) || parsed.success !== true) {
+    const message = readErrorMessage(parsed, 'Invalid response');
+    const code = readErrorCode(parsed);
+    throw new ApiRequestError(message, res.status, code);
+  }
 }
 
 async function postAuthJson<T extends AuthPayload>(

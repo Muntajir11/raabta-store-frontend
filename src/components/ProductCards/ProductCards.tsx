@@ -12,8 +12,8 @@ interface ProductCardsProps {
 }
 
 const getHeading = (category: string) => {
-  if (category === 'normal') return 'The Essentials';
-  if (category === 'islamic') return 'Faith Collection';
+  if (category === 'normal') return 'Raabta Lifestyle Collections';
+  if (category === 'islamic') return 'Raabta Studio Collection';
   return category.charAt(0).toUpperCase() + category.slice(1) + ' Collection';
 };
 

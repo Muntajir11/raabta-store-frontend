@@ -19,6 +19,7 @@ import OrdersPage from './pages/Orders/OrdersPage';
 import OrderDetailPage from './pages/Orders/OrderDetailPage';
 import CartPage from './pages/Cart/CartPage';
 import CustomiseEditorPage from './pages/Customisation/CustomiseEditorPage';
+import ContactPage from './pages/Contact/ContactPage';
 
 function Home() {
   const [activeCategory, setActiveCategory] = useState<'normal' | 'islamic'>('normal');
@@ -63,6 +64,7 @@ function App() {
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/contact" element={<ContactPage />} />
         </Routes>
         <Footer />
       </div>
