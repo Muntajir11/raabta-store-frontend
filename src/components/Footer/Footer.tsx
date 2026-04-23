@@ -25,9 +25,36 @@ const Footer: React.FC = () => {
           <div className="footer-col">
             <h4 className="footer-col-heading">Support</h4>
             <ul>
-              <li><Link to="/contact">Contact Us</Link></li>
-              <li><a href="#">Shipping & Returns</a></li>
-              <li><a href="#">FAQ</a></li>
+              <li>
+                <Link to="/contact" target="_blank" rel="noreferrer noopener">
+                  Contact Us
+                </Link>
+              </li>
+              <li>
+                <Link to="/shipping" target="_blank" rel="noreferrer noopener">
+                  Shipping Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/returns" target="_blank" rel="noreferrer noopener">
+                  Returns &amp; Refunds
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div className="footer-col">
+            <h4 className="footer-col-heading">Legal</h4>
+            <ul>
+              <li>
+                <Link to="/privacy" target="_blank" rel="noreferrer noopener">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/terms" target="_blank" rel="noreferrer noopener">
+                  Terms &amp; Conditions
+                </Link>
+              </li>
             </ul>
           </div>
           <div className="footer-col">

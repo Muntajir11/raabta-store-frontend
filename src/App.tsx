@@ -20,6 +20,10 @@ import OrderDetailPage from './pages/Orders/OrderDetailPage';
 import CartPage from './pages/Cart/CartPage';
 import CustomiseEditorPage from './pages/Customisation/CustomiseEditorPage';
 import ContactPage from './pages/Contact/ContactPage';
+import PrivacyPolicyPage from './pages/Policy/PrivacyPolicyPage';
+import ReturnPolicyPage from './pages/Policy/ReturnPolicyPage';
+import ShippingPolicyPage from './pages/Policy/ShippingPolicyPage';
+import TermsConditionsPage from './pages/Policy/TermsConditionsPage';
 
 function Home() {
   const [activeCategory, setActiveCategory] = useState<'normal' | 'islamic'>('normal');
@@ -65,6 +69,10 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/returns" element={<ReturnPolicyPage />} />
+          <Route path="/shipping" element={<ShippingPolicyPage />} />
+          <Route path="/terms" element={<TermsConditionsPage />} />
         </Routes>
         <Footer />
       </div>
