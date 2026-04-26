@@ -1041,6 +1041,10 @@ function validateShippingAddress(data: unknown, status: number): ShippingAddress
   };
 }
 
+function asNullableNumber(v: unknown): number | null {
+  return typeof v === 'number' ? v : null;
+}
+
 function validateOrderDetail(data: unknown, status: number): OrderDetail {
   if (!isRecord(data) || !Array.isArray(data.items)) throw new ApiRequestError('Invalid response', status);
   const shippingAddress =
@@ -1061,18 +1065,9 @@ function validateOrderDetail(data: unknown, status: number): OrderDetail {
     shippingExclGst: typeof data.shippingExclGst === 'number' ? data.shippingExclGst : null,
     shippingGst: isRecord(data.shippingGst)
       ? {
-          cgst:
-            typeof (data.shippingGst as Record<string, unknown>).cgst === 'number'
-              ? (data.shippingGst as Record<string, unknown>).cgst
-              : null,
-          sgst:
-            typeof (data.shippingGst as Record<string, unknown>).sgst === 'number'
-              ? (data.shippingGst as Record<string, unknown>).sgst
-              : null,
-          igst:
-            typeof (data.shippingGst as Record<string, unknown>).igst === 'number'
-              ? (data.shippingGst as Record<string, unknown>).igst
-              : null,
+          cgst: asNullableNumber((data.shippingGst as Record<string, unknown>).cgst),
+          sgst: asNullableNumber((data.shippingGst as Record<string, unknown>).sgst),
+          igst: asNullableNumber((data.shippingGst as Record<string, unknown>).igst),
         }
       : null,
     total: Number(data.total || 0),
