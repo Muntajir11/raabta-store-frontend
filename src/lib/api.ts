@@ -1,4 +1,25 @@
 export const AUTH_EVENT_NAME = 'raabta-auth-changed';
+const AUTH_HINT_KEY = 'raabta_auth_hint_v1';
+
+function readAuthHint(): boolean {
+  try {
+    return localStorage.getItem(AUTH_HINT_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function writeAuthHint(value: boolean) {
+  try {
+    localStorage.setItem(AUTH_HINT_KEY, value ? '1' : '0');
+  } catch {
+    // ignore (storage disabled)
+  }
+}
+
+export function hasAuthHint(): boolean {
+  return readAuthHint();
+}
 
 export type AuthUser = {
   id: string;
@@ -490,10 +511,12 @@ export async function authLogin(input: {
   email: string;
   password: string;
 }): Promise<AuthPayload> {
-  return postAuthJson<AuthPayload>('/api/auth/login', {
+  const data = await postAuthJson<AuthPayload>('/api/auth/login', {
     email: input.email.trim(),
     password: input.password,
   });
+  writeAuthHint(true);
+  return data;
 }
 
 export async function authRegister(input: {
@@ -502,12 +525,14 @@ export async function authRegister(input: {
   password: string;
   gender: 'male' | 'female';
 }): Promise<AuthPayload> {
-  return postAuthJson<AuthPayload>('/api/auth/register', {
+  const data = await postAuthJson<AuthPayload>('/api/auth/register', {
     name: input.name.trim(),
     email: input.email.trim(),
     password: input.password,
     gender: input.gender,
   });
+  writeAuthHint(true);
+  return data;
 }
 
 export async function authLogout(): Promise<void> {
@@ -519,10 +544,15 @@ export async function authLogout(): Promise<void> {
     const code = readErrorCode(parsed);
     throw new ApiRequestError(message, res.status, code);
   }
+  writeAuthHint(false);
   window.dispatchEvent(new CustomEvent(AUTH_EVENT_NAME));
 }
 
-export async function authSession(): Promise<AuthUser | null> {
+export async function authSession(options?: { force?: boolean }): Promise<AuthUser | null> {
+  // If the client has no hint that a session exists, avoid hitting the network.
+  // This prevents public/static pages from triggering auth/session/refresh noise.
+  if (!options?.force && !readAuthHint()) return null;
+
   const fetchSessionUser = async (): Promise<AuthUser | null> => {
     const { res, parsed } = await requestJson('/api/auth/session', {
       method: 'GET',
@@ -537,7 +567,9 @@ export async function authSession(): Promise<AuthUser | null> {
     if (!isRecord(parsed) || parsed.success !== true) {
       throw new ApiRequestError('Invalid response', res.status);
     }
-    return validateUser(parsed.data, res.status);
+    const user = validateUser(parsed.data, res.status);
+    writeAuthHint(true);
+    return user;
   };
 
   const current = await fetchSessionUser();
@@ -546,9 +578,14 @@ export async function authSession(): Promise<AuthUser | null> {
   const { res: refreshRes } = await requestJson('/api/auth/refresh', {
     method: 'POST',
   });
-  if (!refreshRes.ok) return null;
+  if (!refreshRes.ok) {
+    writeAuthHint(false);
+    return null;
+  }
 
-  return fetchSessionUser();
+  const refreshed = await fetchSessionUser();
+  if (!refreshed) writeAuthHint(false);
+  return refreshed;
 }
 
 export function notifyAuthChanged(): void {
@@ -620,9 +657,11 @@ export async function passwordChange(input: {
   if (!isRecord(parsed) || parsed.success !== true) {
     throw new ApiRequestError('Invalid response', res.status);
   }
-  return {
+  const data = {
     user: validateUser(isRecord(parsed) ? parsed.data : null, res.status),
   };
+  writeAuthHint(true);
+  return data;
 }
 
 export async function cartGet(): Promise<CartPayload> {
@@ -947,13 +986,14 @@ function validateOrderListItem(data: unknown, status: number): OrderListItem {
       : data.firstItem !== undefined
         ? (() => {
             if (!isRecord(data.firstItem)) throw new ApiRequestError('Invalid response', status);
+            const fi = data.firstItem as Record<string, unknown>;
             return {
-              productId: String((data.firstItem as any).productId || ''),
-              name: String((data.firstItem as any).name || ''),
-              image: typeof (data.firstItem as any).image === 'string' ? (data.firstItem as any).image : undefined,
-              size: typeof (data.firstItem as any).size === 'string' ? (data.firstItem as any).size : undefined,
-              color: typeof (data.firstItem as any).color === 'string' ? (data.firstItem as any).color : undefined,
-              gsm: typeof (data.firstItem as any).gsm === 'number' ? (data.firstItem as any).gsm : undefined,
+              productId: String(fi.productId || ''),
+              name: String(fi.name || ''),
+              image: typeof fi.image === 'string' ? fi.image : undefined,
+              size: typeof fi.size === 'string' ? fi.size : undefined,
+              color: typeof fi.color === 'string' ? fi.color : undefined,
+              gsm: typeof fi.gsm === 'number' ? fi.gsm : undefined,
             };
           })()
         : undefined;
@@ -1021,9 +1061,18 @@ function validateOrderDetail(data: unknown, status: number): OrderDetail {
     shippingExclGst: typeof data.shippingExclGst === 'number' ? data.shippingExclGst : null,
     shippingGst: isRecord(data.shippingGst)
       ? {
-          cgst: typeof (data.shippingGst as Record<string, unknown>).cgst === 'number' ? (data.shippingGst as any).cgst : null,
-          sgst: typeof (data.shippingGst as Record<string, unknown>).sgst === 'number' ? (data.shippingGst as any).sgst : null,
-          igst: typeof (data.shippingGst as Record<string, unknown>).igst === 'number' ? (data.shippingGst as any).igst : null,
+          cgst:
+            typeof (data.shippingGst as Record<string, unknown>).cgst === 'number'
+              ? (data.shippingGst as Record<string, unknown>).cgst
+              : null,
+          sgst:
+            typeof (data.shippingGst as Record<string, unknown>).sgst === 'number'
+              ? (data.shippingGst as Record<string, unknown>).sgst
+              : null,
+          igst:
+            typeof (data.shippingGst as Record<string, unknown>).igst === 'number'
+              ? (data.shippingGst as Record<string, unknown>).igst
+              : null,
         }
       : null,
     total: Number(data.total || 0),

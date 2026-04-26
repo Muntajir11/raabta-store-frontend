@@ -327,19 +327,25 @@ const CustomiseEditorPage: React.FC = () => {
     }
   };
 
-  function viewHasImageAsset(view: EditorView): boolean {
-    const s = sections[view];
-    if (s.imageFile) return true;
-    return designByView[view].some((l) => l.type === 'image');
-  }
+  const viewHasImageAsset = useCallback(
+    (view: EditorView): boolean => {
+      const s = sections[view];
+      if (s.imageFile) return true;
+      return designByView[view].some((l) => l.type === 'image');
+    },
+    [designByView, sections],
+  );
 
   /** This side has something to print: artwork and/or custom text (independent). */
-  function viewHasPrintContent(view: EditorView): boolean {
-    if (viewHasImageAsset(view)) return true;
-    const s = sections[view];
-    if (s.textMode === 'custom' && s.customText.trim()) return true;
-    return designByView[view].some((l) => l.type === 'text' && l.text.trim());
-  }
+  const viewHasPrintContent = useCallback(
+    (view: EditorView): boolean => {
+      if (viewHasImageAsset(view)) return true;
+      const s = sections[view];
+      if (s.textMode === 'custom' && s.customText.trim()) return true;
+      return designByView[view].some((l) => l.type === 'text' && l.text.trim());
+    },
+    [designByView, sections, viewHasImageAsset],
+  );
 
   const handlePlaceOrder = async () => {
     const missingPrint: string[] = [];
@@ -364,7 +370,7 @@ const CustomiseEditorPage: React.FC = () => {
     }
 
     setPlacing(true);
-    const session = await authSession();
+    const session = await authSession({ force: true });
     const nameDetail = `Custom T-shirt — Rs. ${totalRs}`;
     const payload = {
       productId: `custom-${Date.now()}`,
@@ -443,7 +449,7 @@ const CustomiseEditorPage: React.FC = () => {
         `Order payload (for DB): ${orderPayloadPreview}`,
         `Full design JSON: ${serializeDesign(designByView)}`,
       ],
-    [size, color, gsm, priceBreakdownLines, sections, orderPayloadPreview, designByView],
+    [size, color, gsm, priceBreakdownLines, sections, orderPayloadPreview, designByView, viewHasImageAsset],
   );
 
   const guideOptions = guideChoicesForView(activeView);

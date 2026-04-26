@@ -114,7 +114,7 @@ export default function PrivacyPolicyPage() {
       <p>If you have any questions or concerns about this Privacy Policy, please contact us at:</p>
       <address>
         Raabta{'\n'}
-        Email: support@raabta.in{'\n'}
+        Email: support.raabtastore@gmail.com{'\n'}
         Phone: +91 7980265001{'\n'}
         Address: House No 78, Motijhil, Chinsurah, Hooghly, Westbengal 712101
       </address>

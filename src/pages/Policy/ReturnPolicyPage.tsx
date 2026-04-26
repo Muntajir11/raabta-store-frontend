@@ -54,7 +54,9 @@ export default function ReturnPolicyPage() {
       <h2>Return Process</h2>
       <p>To initiate a return or request a refund, please follow these steps:</p>
       <ol>
-        <li>Contact our customer service team at support@raabta.in within the applicable time frame (5 or 7 days).</li>
+        <li>
+          Contact our customer service team at support.raabtastore@gmail.com within the applicable time frame (5 or 7 days).
+        </li>
         <li>Provide your order number, proof of purchase, and photographic evidence if applicable.</li>
         <li>
           Our customer service team will review your request and, if approved, provide instructions for returning the

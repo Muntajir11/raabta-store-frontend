@@ -32,7 +32,7 @@ const CartPage: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const session = await authSession();
+        const session = await authSession({ force: true });
         if (!session) {
           setIsLoggedIn(false);
           setCart({ items: [], totalItems: 0, subtotal: 0 });

@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Menu, Search, ShoppingBag, X } from 'lucide-react';
 import './Header.css';
-import logoImg from '../../assets/raabta/YOUR - 2.JPG.jpeg';
 import {
   AUTH_EVENT_NAME,
   authLogout,
   authSession,
+  hasAuthHint,
 } from '../../lib/api';
 import { useCart } from '../../lib/cart-context';
 import { avatarDataUrlFromSeed, randomAvatarDataUrl } from '../../lib/avatar';
@@ -16,9 +16,12 @@ const Header: React.FC = () => {
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [profileMenuOpenedAtPath, setProfileMenuOpenedAtPath] = useState<string>('');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [mobileNavOpenedAtPath, setMobileNavOpenedAtPath] = useState<string>('');
+  const [query, setQuery] = useState('');
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
-  const avatarSrc = useRef<string>(randomAvatarDataUrl());
+  const [avatarUrl, setAvatarUrl] = useState<string>(() => randomAvatarDataUrl());
   const { totalItems } = useCart();
   const categories = [
     { id: '', label: 'Home' },
@@ -32,17 +35,22 @@ const Header: React.FC = () => {
 
   useEffect(() => {
     const refreshAuthState = async () => {
+      if (!hasAuthHint()) {
+        setIsLoggedIn(false);
+        setAvatarUrl(randomAvatarDataUrl());
+        return;
+      }
       try {
         const session = await authSession();
         setIsLoggedIn(Boolean(session));
         if (session?.avatarSeed) {
-          avatarSrc.current = avatarDataUrlFromSeed(session.avatarSeed);
+          setAvatarUrl(avatarDataUrlFromSeed(session.avatarSeed));
         } else {
-          avatarSrc.current = randomAvatarDataUrl();
+          setAvatarUrl(randomAvatarDataUrl());
         }
       } catch {
         setIsLoggedIn(false);
-        avatarSrc.current = randomAvatarDataUrl();
+        setAvatarUrl(randomAvatarDataUrl());
       }
     };
     void refreshAuthState();
@@ -66,13 +74,11 @@ const Header: React.FC = () => {
     };
   }, []);
 
-  useEffect(() => {
-    setMobileNavOpen(false);
-    setIsProfileMenuOpen(false);
-  }, [location.pathname]);
+  const isMobileNavVisible = mobileNavOpen && mobileNavOpenedAtPath === location.pathname;
+  const isProfileMenuVisible = isProfileMenuOpen && profileMenuOpenedAtPath === location.pathname;
 
   useEffect(() => {
-    if (!mobileNavOpen) return;
+    if (!isMobileNavVisible) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     const onKey = (e: KeyboardEvent) => {
@@ -83,7 +89,7 @@ const Header: React.FC = () => {
       document.body.style.overflow = prev;
       window.removeEventListener('keydown', onKey);
     };
-  }, [mobileNavOpen]);
+  }, [isMobileNavVisible]);
 
   const handleLogout = async () => {
     try {
@@ -103,19 +109,25 @@ const Header: React.FC = () => {
     return `nav-link segment-link mobile-nav-segment mobile-nav-link${active ? ' active' : ''}`;
   };
 
+  const activeSegmentId = useMemo(() => {
+    if (location.pathname === '/') return '';
+    const m = location.pathname.match(/^\/category\/([^/]+)/);
+    return m?.[1] ?? null;
+  }, [location.pathname]);
+
   const mobileDrawer =
     typeof document !== 'undefined'
       ? createPortal(
           <>
             <div
-              className={`mobile-nav-backdrop${mobileNavOpen ? ' is-open' : ''}`}
-              aria-hidden={!mobileNavOpen}
+              className={`mobile-nav-backdrop${isMobileNavVisible ? ' is-open' : ''}`}
+              aria-hidden={!isMobileNavVisible}
               onClick={() => setMobileNavOpen(false)}
             />
             <aside
-              className={`mobile-nav-drawer${mobileNavOpen ? ' is-open' : ''}`}
+              className={`mobile-nav-drawer${isMobileNavVisible ? ' is-open' : ''}`}
               id="mobile-primary-nav"
-              aria-hidden={!mobileNavOpen}
+              aria-hidden={!isMobileNavVisible}
             >
               <div className="mobile-nav-drawer-head">
                 <span className="mobile-nav-drawer-title">Menu</span>
@@ -218,28 +230,53 @@ const Header: React.FC = () => {
     <header className="header">
       {mobileDrawer}
       <div className="container header-container">
-        <button
-          type="button"
-          className="header-burger"
-          aria-label="Open menu"
-          aria-expanded={mobileNavOpen}
-          aria-controls="mobile-primary-nav"
-          onClick={() => setMobileNavOpen(true)}
-        >
-          <Menu size={22} strokeWidth={2} aria-hidden />
-        </button>
+        <div className="header-left">
+          <div className="logo-group">
+            <Link to="/" className="logo-link header-wordmark" aria-label="Raabta home">
+              raabta<span aria-hidden>.</span>
+            </Link>
+          </div>
 
-        <div className="logo-group">
-          <Link to="/" className="logo-link">
-            <img src={logoImg} alt="raabta." className="header-logo-img" />
-          </Link>
+          <button
+            type="button"
+            className="header-burger"
+            aria-label="Open menu"
+            aria-expanded={isMobileNavVisible}
+            aria-controls="mobile-primary-nav"
+            onClick={() => {
+              setMobileNavOpenedAtPath(location.pathname);
+              setMobileNavOpen(true);
+            }}
+          >
+            <Menu size={22} strokeWidth={2} aria-hidden />
+          </button>
         </div>
 
-        <div className="header-tools">
+        <nav className="header-segments header-segments--desktop" aria-label="Shop sections">
+          {categories.map((category) => (
+            <NavLink
+              key={category.id || 'home-desktop'}
+              to={category.id ? `/category/${category.id}` : '/'}
+              end={!category.id}
+              className={({ isActive }) => segmentClass({ isActive }, category.id)}
+              aria-current={activeSegmentId === category.id ? 'page' : undefined}
+            >
+              {category.label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="header-right">
           <div className="header-search">
             <div className="search-wrapper">
               <Search size={18} className="search-icon" />
-              <input type="text" placeholder="Search by Keyword" className="search-input" />
+              <input
+                type="search"
+                placeholder="Search products…"
+                className="search-input"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
             </div>
           </div>
 
@@ -275,13 +312,18 @@ const Header: React.FC = () => {
                   className="profile-btn"
                   type="button"
                   aria-label="Profile"
-                  aria-expanded={isProfileMenuOpen}
-                  onClick={() => setIsProfileMenuOpen((prev) => !prev)}
+                  aria-expanded={isProfileMenuVisible}
+                  onClick={() =>
+                    setIsProfileMenuOpen((prev) => {
+                      if (!prev) setProfileMenuOpenedAtPath(location.pathname);
+                      return !prev;
+                    })
+                  }
                 >
-                  <img className="profile-avatar" src={avatarSrc.current} alt="" aria-hidden />
+                  <img className="profile-avatar" src={avatarUrl} alt="" aria-hidden />
                 </button>
 
-                {isProfileMenuOpen ? (
+                {isProfileMenuVisible ? (
                   <div className="profile-menu-card" role="menu" aria-label="Profile menu">
                     <Link to="/account" className="profile-menu-item" role="menuitem">
                       My account
@@ -309,7 +351,6 @@ const Header: React.FC = () => {
             ) : null}
           </div>
         </div>
-
       </div>
     </header>
   );

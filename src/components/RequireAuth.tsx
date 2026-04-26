@@ -14,7 +14,7 @@ export default function RequireAuth({ children }: Props) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const user = await authSession();
+      const user = await authSession({ force: true });
       if (cancelled) return;
       if (!user) {
         navigate('/login', { replace: true, state: { from: location } });
@@ -25,7 +25,7 @@ export default function RequireAuth({ children }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [navigate, location.pathname, location.search]);
+  }, [navigate, location]);
 
   if (status === 'loading') {
     return (

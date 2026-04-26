@@ -10,7 +10,11 @@ const Footer: React.FC = () => {
         
         <div className="footer-brand">
           <h2 className="footer-logo">raabta.</h2>
-          <p className="footer-tagline">Your concept, our craft. Faith meets lifestyle.</p>
+          <p className="footer-tagline">
+            Your concept, our craft.
+            <br />
+            Faith meets lifestyle.
+          </p>
         </div>
 
         <div className="footer-links">

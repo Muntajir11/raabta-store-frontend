@@ -5,6 +5,7 @@ import {
   cartAddItem,
   cartGet,
   cartMerge,
+  hasAuthHint,
   type CartItem,
   type CartMutationInput,
   type CartUpsertInput,
@@ -76,6 +77,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const refreshCart = useCallback(async () => {
+    if (!hasAuthHint()) {
+      setFromSnapshot(toGuestView(readGuestCart()));
+      return;
+    }
     const session = await authSession();
     if (session) {
       const guestItems = readGuestCart();
@@ -136,7 +141,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...input,
         qty: Math.max(1, Math.min(20, Math.floor(input.qty))),
       };
-      const session = await authSession();
+      const session = hasAuthHint() ? await authSession() : null;
       if (session) {
         const serverCart = await cartAddItem({
           productId: normalized.productId,
